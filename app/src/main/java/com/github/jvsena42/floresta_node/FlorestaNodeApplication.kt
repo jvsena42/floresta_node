@@ -1,10 +1,13 @@
 package com.github.jvsena42.floresta_node
 
 import android.app.Application
+import android.content.Intent
+import android.util.Log
 import com.github.jvsena42.floresta_node.data.FlorestaRpc
 import com.github.jvsena42.floresta_node.domain.floresta.FlorestaDaemon
 import com.github.jvsena42.floresta_node.domain.floresta.FlorestaDaemonImpl
 import com.github.jvsena42.floresta_node.domain.floresta.FlorestaRpcImpl
+import com.github.jvsena42.floresta_node.domain.floresta.FlorestaService
 import com.github.jvsena42.floresta_node.presentation.ui.screens.node.NodeViewModel
 import com.google.gson.Gson
 import org.koin.android.ext.koin.androidContext
@@ -23,6 +26,11 @@ class FlorestaNodeApplication: Application() {
                 presentationModule,
                 domainModule
             )
+        }
+        try {
+            startForegroundService(Intent(this, FlorestaService::class.java))
+        } catch (e: Exception) {
+            Log.e("FlorestaApplication", "onCreate: ", e)
         }
     }
 }
