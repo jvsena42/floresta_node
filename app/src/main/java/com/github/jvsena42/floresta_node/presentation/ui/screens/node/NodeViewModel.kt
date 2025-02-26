@@ -51,14 +51,14 @@ class NodeViewModel(
             florestaRpc.getPeerInfo().collect { result ->
                 Log.d(TAG, "getPeerInfo: ${result.getOrNull()}")
                 result.onSuccess { data ->
-                    val size = data.result.orEmpty().size
-                    if (size > 0) [
+                    val peers = data.result.orEmpty()
+                    if (peers.isNotEmpty()) {
                         _uiState.update {
                             it.copy(
-                                numberOfPeers = size.toString()
+                                numberOfPeers = peers.size.toString(),
                             )
                         }
-                    ]
+                    }
                 }
             }
         }
