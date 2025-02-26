@@ -14,7 +14,7 @@
         android:theme="@style/Theme.Floresta_node"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".presentation.ui.screens.main.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Floresta_node">
             <intent-filter>

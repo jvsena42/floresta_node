@@ -1,4 +1,4 @@
-package com.github.jvsena42.floresta_node.ui.theme
+package com.github.jvsena42.floresta_node.presentation.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

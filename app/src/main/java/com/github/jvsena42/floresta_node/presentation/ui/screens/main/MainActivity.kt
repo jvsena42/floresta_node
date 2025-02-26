@@ -1,4 +1,4 @@
-package com.github.jvsena42.floresta_node
+package com.github.jvsena42.floresta_node.presentation.ui.screens.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.jvsena42.floresta_node.ui.theme.Floresta_nodeTheme
+import com.github.jvsena42.floresta_node.presentation.ui.theme.Floresta_nodeTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
