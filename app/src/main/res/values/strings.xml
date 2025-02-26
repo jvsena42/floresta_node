@@ -1,3 +1,28 @@
 <resources>
-    <string name="app_name">floresta_node</string>
+    <string name="app_name">Floresta Node</string>
+    <string name="btc">BTC</string>
+    <string name="sats">sats</string>
+    <string name="refresh">Refresh</string>
+    <string name="new_wallet">New wallet</string>
+    <string name="transactions">Transactions</string>
+    <string name="received">Received</string>
+    <string name="send">Send</string>
+    <string name="node">Node</string>
+    <string name="number_of_peers">Number of peers</string>
+    <string name="block_height">Block Height</string>
+    <string name="block_hash">Block hash</string>
+    <string name="network">Network</string>
+    <string name="difficulty">Difficulty</string>
+    <string name="minutes">minutes</string>
+    <string name="best_block">Best Block</string>
+    <string name="average_block_time">Average block time</string>
+    <string name="sync">Sync</string>
+    <string name="receive_bitcoin">Receive Bitcoin</string>
+    <string name="your_bitcoin_infrastructure_in_a_single_app">Your bitcoin infrastructure in a single app</string>
+    <string name="create_a_new_wallet">Create a new wallet</string>
+    <string name="restore_existing_wallet">Restore existing wallet</string>
+    <string name="navigate_back">Navigate back</string>
+    <string name="create_wallet">Create Wallet</string>
+    <string name="carefully_enter_the_12_words_of_your_recovery_password_in_the_fields_below_make_sure_each_word_is_correct_as_this_password_is_essential_for_regaining_access_to_your_account">Carefully enter the 12 words of your recovery password in the fields below. Make sure each word is correct, as this password is essential for regaining access to your account.</string>
+    <string name="restore_wallet">Restore wallet</string>
 </resources>
