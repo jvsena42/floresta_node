@@ -99,10 +99,10 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(paddingValues = innerPadding)
                         ) {
                             composable(Destinations.NODE.route) {
-//                                    ScreenHome()
+                                ScreenNode()
                             }
                             composable(Destinations.SETTINGS.route) {
-                                    ScreenNode()
+                                ScreenNode()
                             }
                         }
                     }
