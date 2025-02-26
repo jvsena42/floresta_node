@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.koin.android)
     implementation(libs.koin.test)
+    implementation(project(":florestaDaemon"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

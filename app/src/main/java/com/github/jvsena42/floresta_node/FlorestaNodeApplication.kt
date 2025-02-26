@@ -2,6 +2,8 @@ package com.github.jvsena42.floresta_node
 
 import android.app.Application
 import com.github.jvsena42.floresta_node.data.FlorestaRpc
+import com.github.jvsena42.floresta_node.domain.floresta.FlorestaDaemon
+import com.github.jvsena42.floresta_node.domain.floresta.FlorestaDaemonImpl
 import com.github.jvsena42.floresta_node.domain.floresta.FlorestaRpcImpl
 import com.github.jvsena42.floresta_node.presentation.ui.screens.node.NodeViewModel
 import com.google.gson.Gson
@@ -30,5 +32,10 @@ val presentationModule = module {
 }
 
 val domainModule = module {
+    single<FlorestaDaemon> {
+        FlorestaDaemonImpl(
+            datadir = androidContext().filesDir.toString(),
+        )
+    }
     single<FlorestaRpc> { FlorestaRpcImpl(gson = Gson()) }
 }

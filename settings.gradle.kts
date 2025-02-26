@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "floresta_node"
 include(":app")
- 
+include(":florestaDaemon")
