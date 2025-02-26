@@ -1,6 +1,12 @@
 # Gradle files
 .gradle/
 build/
+.mvn/
+.vscode/
+gradle/wrapper/gradle-wrapper.jar
+.gradle/caches/
+.gradle/buildinfo/
+.gradle/wrapper/
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -15,12 +21,35 @@ captures/
 *.apk
 output.json
 
+# Android-specific
+app/build/
+app/captures/
+
+# iOS-specific
+ios/
+*.xcarchive
+*.xcworkspace
+*.xcodeproj
+
 # IntelliJ
 *.iml
 .idea/
 misc.xml
 deploymentTargetDropDown.xml
 render.experimental.xml
+
+# Test results
+test-results/
+test-reports/
+
+# IDE-specific files
+*.iws
+*.idea/.name
+*.idea/encodings.xml
+*.idea/modules.xml
+*.idea/workspace.xml
+*.pid
+*.run.xml
 
 # Keystore files
 *.jks
@@ -31,3 +60,23 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Temporary files
+*.tmp
+*.swp
+
+# Log/OS Files
+*.log
+
+# Kotlin-specific
+.kotlin_cache/
+kotlinc/
+kotlin-tooling-box/
+
+
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+output.json
