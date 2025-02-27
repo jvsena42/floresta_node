@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.compose.navigation)
     implementation ("com.google.code.gson:gson:2.11.0")
+    implementation("net.java.dev.jna:jna:5.14.0@aar")
 
     implementation(libs.okhttp)
 
@@ -60,7 +61,6 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.koin.android)
     implementation(libs.koin.test)
-    implementation(project(":florestaDaemon"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -3,7 +3,7 @@
 
 @file:Suppress("NAME_SHADOWING")
 
-package com.github.jvsena42.florestadaemon
+package com.florestad
 
 // Common helper code.
 //

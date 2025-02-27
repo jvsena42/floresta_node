@@ -1,9 +1,9 @@
 package com.github.jvsena42.floresta_node.domain.floresta
 
 import android.util.Log
-import com.github.jvsena42.florestadaemon.Config
-import com.github.jvsena42.florestadaemon.Florestad
-import com.github.jvsena42.florestadaemon.Network as FlorestaNetwork
+import com.florestad.Config
+import com.florestad.Florestad
+import com.florestad.Network as FlorestaNetwork
 
 interface FlorestaDaemon {
     suspend fun start()
