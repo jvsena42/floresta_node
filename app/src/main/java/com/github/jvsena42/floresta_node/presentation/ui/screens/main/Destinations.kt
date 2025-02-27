@@ -10,6 +10,6 @@ enum class Destinations(
     val label: String,
     @DrawableRes val icon: Int
 ) {
-    SETTINGS(route = "Settings", label = "Settings", R.drawable.ic_home),
+    SETTINGS(route = "Settings", label = "Settings", R.drawable.ic_settings),
     NODE(route = "Node", label = "", R.drawable.ic_node),
 }
