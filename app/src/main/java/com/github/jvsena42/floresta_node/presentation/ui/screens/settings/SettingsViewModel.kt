@@ -17,7 +17,7 @@ class SettingsViewModel(
     private val florestaRpc: FlorestaRpc
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SettingsUiState(nodeAddress = ELECTRUM_ADDRESS))
+    private val _uiState = MutableStateFlow(SettingsUiState(signetAddress = ELECTRUM_ADDRESS))
     val uiState = _uiState.asStateFlow()
 
     fun onAction(action: SettingsAction) {

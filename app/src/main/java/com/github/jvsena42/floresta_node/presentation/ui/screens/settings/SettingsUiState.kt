@@ -5,7 +5,7 @@ import androidx.compose.runtime.Stable
 @Stable
 data class SettingsUiState(
     val descriptorText: String = "",
-    val nodeAddress: String = "",
+    val signetAddress: String = "",
     val errorMessage: String = "",
     val isLoading: Boolean = false
 )

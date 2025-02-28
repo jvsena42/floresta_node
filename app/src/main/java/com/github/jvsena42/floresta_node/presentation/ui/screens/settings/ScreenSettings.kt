@@ -92,14 +92,14 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
             val message = stringResource(R.string.node_address_copied_to_clipboard)
 
             Text(
-                text = stringResource(R.string.node_address, uiState.nodeAddress),
+                text = stringResource(R.string.node_address, uiState.signetAddress),
                 style = MaterialTheme.typography.titleSmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
                     .clickable {
-                        clipboardManager.setText(AnnotatedString(uiState.nodeAddress))
+                        clipboardManager.setText(AnnotatedString(uiState.signetAddress))
                         scope.launch {
                             snackBarHostState.showSnackbar(message = message)
                             onAction(SettingsAction.ClearSnackBarMessage)
@@ -158,7 +158,7 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
 private fun Preview() {
     FlorestaNodeTheme {
         ScreenSettings(
-            uiState = SettingsUiState(nodeAddress = SettingsViewModel.ELECTRUM_ADDRESS),
+            uiState = SettingsUiState(signetAddress = SettingsViewModel.ELECTRUM_ADDRESS),
             onAction = {}
         )
     }
