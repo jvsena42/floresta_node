@@ -86,7 +86,7 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
             Spacer(modifier = Modifier.weight(1f))
 
             OutlinedButton(
-                onClick = { onAction(SettingsAction.OnClickUpdateDescriptor) },
+                onClick = { onAction(SettingsAction.OnClickRescan) },
                 enabled = !uiState.isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
