@@ -3,6 +3,11 @@ package com.github.jvsena42.floresta_node.domain.model.florestaRPC
 
 import com.google.gson.annotations.SerializedName
 
+/**
+ * @param id The ID of the JSON-RPC response
+ * @param jsonrpc The JSON-RPC version
+ * @param result The result of the `getblockchaininfo` RPC call
+ */
 data class GetBlockchainInfoResponse(
     @SerializedName("id")
     val id: Int,
@@ -12,6 +17,20 @@ data class GetBlockchainInfoResponse(
     val result: Result
 )
 
+/**
+ * @param bestBlock The best block we have headers for
+ * @param chain The name of the current active network (e.g., bitcoin, testnet, regtest)
+ * @param difficulty Current network difficulty
+ * @param height The height of the best block we have headers for
+ * @param ibd Whether we are currently in initial block download
+ * @param latestBlockTime The time in which the latest block was mined
+ * @param latestWork The work of the latest block (e.g., the amount of hashes needed to mine it, on average)
+ * @param leafCount The amount of leaves in our current forest state
+ * @param progress The percentage of blocks we have validated so far
+ * @param rootCount The amount of roots in our current forest state
+ * @param rootHashes The hashes of the roots in our current forest state
+ * @param validated The amount of blocks we have validated so far
+ */
 data class Result(
     @SerializedName("best_block")
     val bestBlock: String,
