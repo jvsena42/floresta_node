@@ -15,7 +15,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import kotlin.jvm.java
-
+import com.github.jvsena42.floresta_node.R
 class FlorestaService : Service() {
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -23,7 +23,7 @@ class FlorestaService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        startForeground(NOTIFICATION_ID, createNotification())
+        startForeground(FLORESTA_NOTIFICATION_ID, createNotification())
         // Your service logic here...
     }
 
@@ -40,14 +40,13 @@ class FlorestaService : Service() {
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager?.createNotificationChannel(channel)
 
-        // Build the notification
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Floresta Service")
-            .setContentText("Service is running in the background")
-//            .setSmallIcon(R.drawable.notification_icon) // Replace with your notification icon
+            .setContentTitle("Floresta Node")
+            .setContentText("Floresta node is running in the background")
+            .setSmallIcon(R.drawable.ic_app_icon)
             .setPriority(NotificationCompat.PRIORITY_MIN)
-            .setAutoCancel(false) // Prevent auto-dismissal
-            .setOngoing(true) // Indicate ongoing service
+            .setAutoCancel(false)
+            .setOngoing(true)
 
         return notificationBuilder.build()
     }
@@ -80,6 +79,6 @@ class FlorestaService : Service() {
 
     companion object {
         private const val TAG = "FlorestaService"
-        private const val NOTIFICATION_ID = 1000
+        private const val FLORESTA_NOTIFICATION_ID = 1000
     }
 }
