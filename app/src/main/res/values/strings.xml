@@ -33,4 +33,5 @@
     <string name="node_address">Electrum Address: %1$s</string>
     <string name="node_address_copied_to_clipboard">Node address copied to clipboard</string>
     <string name="search">Search</string>
+    <string name="enter_the_transaction_id">Enter the transaction Id</string>
 </resources>

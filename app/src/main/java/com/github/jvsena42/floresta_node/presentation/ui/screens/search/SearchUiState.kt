@@ -4,4 +4,5 @@ data class SearchUiState(
     val transactionId: String = "",
     val searchResult: String = "",
     val errorMessage: String = "",
+    val isLoading: Boolean = false
 )
