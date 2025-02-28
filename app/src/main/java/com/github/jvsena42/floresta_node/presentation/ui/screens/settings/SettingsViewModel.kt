@@ -46,6 +46,8 @@ class SettingsViewModel(
                         Log.d(TAG, "updateDescriptor: Fail: ${error.message}")
                         _uiState.update { it.copy(errorMessage = error.message.toString()) }
                     }
+
+                    delay(2.seconds)
                     _uiState.update { it.copy(isLoading = false)}
                 }
         }
