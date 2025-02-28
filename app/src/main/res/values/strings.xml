@@ -30,4 +30,5 @@
     <string name="descriptor_placeholder">wpkh([fingerprint/derivation]xpub.../0/*)</string>
     <string name="update_descriptor">Update Descriptor</string>
     <string name="rescan">Rescan</string>
+    <string name="node_address">Electrum Address: %1$s</string>
 </resources>

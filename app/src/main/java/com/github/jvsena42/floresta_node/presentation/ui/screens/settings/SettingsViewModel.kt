@@ -16,7 +16,7 @@ class SettingsViewModel(
     private val florestaRpc: FlorestaRpc
 ): ViewModel() {
 
-    private val _uiState = MutableStateFlow(SettingsUiState())
+    private val _uiState = MutableStateFlow(SettingsUiState(nodeAddress = ELECTRUM_ADDRESS))
     val uiState = _uiState.asStateFlow()
 
     fun onAction(action: SettingsAction) {
@@ -63,5 +63,6 @@ class SettingsViewModel(
 
     companion object {
         private const val TAG = "SettingsViewModel"
+        const val ELECTRUM_ADDRESS = "127.0.0.1:50001"
     }
 }

@@ -2,6 +2,7 @@ package com.github.jvsena42.floresta_node.presentation.ui.screens.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.github.jvsena42.floresta_node.R
@@ -62,6 +66,22 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
             }
 
             Spacer(modifier = Modifier.height(32.dp))
+
+            val clipboardManager = LocalClipboardManager.current
+
+            Text(
+                text = stringResource(R.string.node_address, uiState.nodeAddress),
+                style = MaterialTheme.typography.titleSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .clickable {
+                        clipboardManager.setText(AnnotatedString(uiState.nodeAddress))
+                    }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             TextField(
                 value = uiState.descriptorText,
@@ -112,7 +132,7 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
 private fun Preview() {
     FlorestaNodeTheme {
         ScreenSettings(
-            uiState = SettingsUiState(),
+            uiState = SettingsUiState(nodeAddress = SettingsViewModel.ELECTRUM_ADDRESS),
             onAction = {}
         )
     }
