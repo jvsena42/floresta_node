@@ -6,4 +6,5 @@ enum class RpcMethods(val method: String) {
     STOP("stop"),
     GET_BLOCKCHAIN_INFO("getblockchaininfo"),
     LOAD_DESCRIPTOR("loaddescriptor"),
+    GET_TRANSACTION("gettransaction"),
 }

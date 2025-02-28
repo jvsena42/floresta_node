@@ -92,6 +92,19 @@ class FlorestaRpcImpl(
         )
     }
 
+    override suspend fun getTransaction(txId: String): Flow<Result<JSONObject>> = flow {
+        Log.d(TAG, "getTransaction: $txId")
+        val arguments = JSONArray()
+        arguments.put(txId)
+        emit(
+            sendJsonRpcRequest(
+                host,
+                RpcMethods.GET_TRANSACTION.method,
+                arguments
+            )
+        )
+    }
+
     override suspend fun getBlockchainInfo(): Flow<Result<GetBlockchainInfoResponse>> =
         flow {
             Log.d(TAG, "getBlockchainInfo: ")

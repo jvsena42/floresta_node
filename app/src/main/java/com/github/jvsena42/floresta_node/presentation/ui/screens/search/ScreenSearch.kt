@@ -78,11 +78,11 @@ fun ScreenSearch(uiState: SearchUiState, onAction: (SearchAction) -> Unit) {
                     .padding(horizontal = 8.dp)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             Text(
                 text = uiState.searchResult,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
@@ -96,6 +96,6 @@ fun ScreenSearch(uiState: SearchUiState, onAction: (SearchAction) -> Unit) {
 @Composable
 private fun Preview() {
     FlorestaNodeTheme {
-        ScreenSearch(SearchUiState()) {}
+        ScreenSearch(SearchUiState(searchResult = "fnsaoidnfsiubvsa")) {}
     }
 }
