@@ -27,6 +27,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.github.jvsena42.floresta_node.presentation.ui.screens.node.ScreenNode
+import com.github.jvsena42.floresta_node.presentation.ui.screens.settings.ScreenSettings
 import com.github.jvsena42.floresta_node.presentation.ui.theme.FlorestaNodeTheme
 import org.koin.androidx.compose.KoinAndroidContext
 
@@ -101,7 +102,7 @@ private fun MainScreen(modifier: Modifier = Modifier) {
                 ScreenNode()
             }
             composable(Destinations.SETTINGS.route) {
-                ScreenNode()
+                ScreenSettings()
             }
         }
     }

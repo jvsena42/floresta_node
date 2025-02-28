@@ -25,4 +25,9 @@
     <string name="create_wallet">Create Wallet</string>
     <string name="carefully_enter_the_12_words_of_your_recovery_password_in_the_fields_below_make_sure_each_word_is_correct_as_this_password_is_essential_for_regaining_access_to_your_account">Carefully enter the 12 words of your recovery password in the fields below. Make sure each word is correct, as this password is essential for regaining access to your account.</string>
     <string name="restore_wallet">Restore wallet</string>
+    <string name="settings">Settings</string>
+    <string name="set_your_wallet_descriptor">Set your wallet descriptor</string>
+    <string name="descriptor_placeholder">wpkh([fingerprint/derivation]xpub.../0/*)</string>
+    <string name="update_descriptor">Update Descriptor</string>
+    <string name="rescan">Rescan</string>
 </resources>
