@@ -33,7 +33,9 @@ class SettingsViewModel(
             SettingsAction.OnClickRescan -> rescan()
             SettingsAction.ClearSnackBarMessage -> _uiState.update { it.copy(errorMessage = "") }
             SettingsAction.OnClickConnectNode -> TODO()
-            is SettingsAction.OnNodeAddressChanged -> TODO()
+            is SettingsAction.OnNodeAddressChanged ->  _uiState.update {
+                it.copy(nodeAddress = action.address.removeSpaces())
+            }
         }
     }
 
