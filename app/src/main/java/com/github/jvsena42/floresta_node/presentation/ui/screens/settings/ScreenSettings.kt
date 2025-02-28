@@ -102,7 +102,7 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
 
             Button(
                 onClick = { onAction(SettingsAction.OnClickUpdateDescriptor) },
-                enabled = !uiState.isLoading,
+                enabled = !uiState.isLoading && uiState.descriptorText.isNotBlank(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
@@ -114,7 +114,7 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
 
             OutlinedButton(
                 onClick = { onAction(SettingsAction.OnClickRescan) },
-                enabled = !uiState.isLoading,
+                enabled = !uiState.isLoading && uiState.descriptorText.isNotBlank(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
