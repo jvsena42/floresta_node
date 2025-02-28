@@ -1,10 +1,10 @@
 package com.github.jvsena42.floresta_node.data
 
-import com.github.jvsena42.floresta_node.domain.model.florestaRPC.GetBlockchainInfoResponse
-import com.github.jvsena42.floresta_node.domain.model.florestaRPC.GetPeerInfoResponse
+import com.github.jvsena42.floresta_node.domain.model.florestaRPC.response.AddNodeResponse
+import com.github.jvsena42.floresta_node.domain.model.florestaRPC.response.GetBlockchainInfoResponse
+import com.github.jvsena42.floresta_node.domain.model.florestaRPC.response.GetPeerInfoResponse
 import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
-import kotlin.coroutines.CoroutineContext
 
 interface FlorestaRpc {
 /**
@@ -83,8 +83,6 @@ suspend fun getTransaction(txId: String): Flow<Result<JSONObject>>
 /**
  * Adds a new node to our list of peers. This will make our node try to connect to this peer.
  * @param node A network address with the format ip[:port]
- * @return A `Result` containing a `JSONObject` with the following field:
- * - success: Whether we successfully added this node to our list of peers
  */
-suspend fun addNode(node: String): Flow<Result<JSONObject>>
+suspend fun addNode(node: String): Flow<Result<AddNodeResponse>>
 }
