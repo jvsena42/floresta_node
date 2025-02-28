@@ -164,7 +164,13 @@ class FlorestaRpcImpl(
             val response = client.newCall(request).execute()
 
             val body = response.body
-            Result.success(JSONObject(body?.string().orEmpty()))
+            val json = JSONObject(body?.string().orEmpty())
+
+            if (json.has("error")) {
+                Result.failure(Exception(json.getJSONObject("error").getString("message")))
+            } else {
+                Result.success(json)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "sendJsonRpcRequest error:", e)
             Result.Companion.failure(e)
