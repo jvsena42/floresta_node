@@ -4,4 +4,5 @@ sealed interface SettingsAction {
     data class OnDescriptorChanged(val descriptor: String): SettingsAction
     object OnClickUpdateDescriptor: SettingsAction
     object OnClickRescan: SettingsAction
+    object ClearErrorMessage: SettingsAction
 }

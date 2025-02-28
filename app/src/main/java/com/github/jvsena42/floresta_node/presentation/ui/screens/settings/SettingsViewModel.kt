@@ -31,6 +31,7 @@ class SettingsViewModel(
             is SettingsAction.OnClickUpdateDescriptor -> updateDescriptor()
 
             SettingsAction.OnClickRescan -> rescan()
+            SettingsAction.ClearErrorMessage -> _uiState.update { it.copy(errorMessage = "") }
         }
     }
 
@@ -43,6 +44,7 @@ class SettingsViewModel(
                         Log.d(TAG, "updateDescriptor: Success: $data")
                     }.onFailure { error ->
                         Log.d(TAG, "updateDescriptor: Fail: ${error.message}")
+                        _uiState.update { it.copy(errorMessage = error.message.toString()) }
                     }
                     _uiState.update { it.copy(isLoading = false)}
                 }
@@ -58,6 +60,7 @@ class SettingsViewModel(
                     Log.d(TAG, "rescan: Success: $data")
                 }.onFailure { error ->
                     Log.d(TAG, "rescan: Fail: ${error.message}")
+                    _uiState.update { it.copy(errorMessage = error.message.toString()) }
                 }
 
                 delay(2.seconds)
