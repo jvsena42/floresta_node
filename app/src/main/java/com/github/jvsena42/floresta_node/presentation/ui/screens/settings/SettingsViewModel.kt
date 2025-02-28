@@ -31,7 +31,7 @@ class SettingsViewModel(
             is SettingsAction.OnClickUpdateDescriptor -> updateDescriptor()
 
             SettingsAction.OnClickRescan -> rescan()
-            SettingsAction.ClearErrorMessage -> _uiState.update { it.copy(errorMessage = "") }
+            SettingsAction.ClearSnackBarMessage -> _uiState.update { it.copy(errorMessage = "") }
         }
     }
 

@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
@@ -61,7 +62,7 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
         if (uiState.errorMessage.isNotEmpty()) {
             scope.launch {
                 snackBarHostState.showSnackbar(message = uiState.errorMessage)
-                onAction(SettingsAction.ClearErrorMessage)
+                onAction(SettingsAction.ClearSnackBarMessage)
             }
         }
     }
@@ -89,6 +90,7 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
             Spacer(modifier = Modifier.height(32.dp))
 
             val clipboardManager = LocalClipboardManager.current
+            val message = stringResource(R.string.node_address_copied_to_clipboard)
 
             Text(
                 text = stringResource(R.string.node_address, uiState.nodeAddress),
@@ -99,6 +101,10 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
                     .padding(horizontal = 8.dp)
                     .clickable {
                         clipboardManager.setText(AnnotatedString(uiState.nodeAddress))
+                        scope.launch {
+                            snackBarHostState.showSnackbar(message = message)
+                            onAction(SettingsAction.ClearSnackBarMessage)
+                        }
                     }
             )
 
