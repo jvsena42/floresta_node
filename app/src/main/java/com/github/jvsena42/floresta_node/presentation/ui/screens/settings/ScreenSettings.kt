@@ -136,6 +136,35 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
                 Text(stringResource(R.string.update_descriptor))
             }
 
+            Spacer(modifier = Modifier.height(32.dp))
+
+            TextField(
+                value = uiState.nodeAddress,
+                enabled = !uiState.isLoading,
+                onValueChange = { newText -> onAction(SettingsAction.OnNodeAddressChanged(newText)) },
+                label = { Text(stringResource(R.string.connect_directly_with_a_node)) },
+                placeholder = { Text(stringResource(R.string.node_address_placeholder)) },
+                maxLines = 1,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { onAction(SettingsAction.OnClickConnectNode) }),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { onAction(SettingsAction.OnClickConnectNode) },
+                enabled = !uiState.isLoading && uiState.nodeAddress.isNotBlank(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+            ) {
+                Text(stringResource(R.string.connect))
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
             OutlinedButton(

@@ -34,4 +34,7 @@
     <string name="node_address_copied_to_clipboard">Node address copied to clipboard</string>
     <string name="search">Search</string>
     <string name="enter_the_transaction_id">Enter the transaction Id</string>
+    <string name="node_address_placeholder">ip[:port]</string>
+    <string name="connect_directly_with_a_node">Connect directly with a node</string>
+    <string name="connect">Connect</string>
 </resources>
