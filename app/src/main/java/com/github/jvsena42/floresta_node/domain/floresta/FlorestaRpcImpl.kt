@@ -6,10 +6,7 @@ import com.github.jvsena42.floresta_node.domain.model.florestaRPC.GetBlockchainI
 import com.github.jvsena42.floresta_node.domain.model.florestaRPC.GetPeerInfoResponse
 import com.github.jvsena42.floresta_node.domain.model.florestaRPC.RpcMethods
 import com.google.gson.Gson
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -19,10 +16,7 @@ import org.json.JSONObject
 import kotlin.apply
 import kotlin.fold
 import kotlin.jvm.java
-import kotlin.onFailure
-import kotlin.onSuccess
 import kotlin.text.orEmpty
-import kotlin.time.Duration.Companion.seconds
 
 class FlorestaRpcImpl(
     private val gson: Gson,
@@ -48,27 +42,13 @@ class FlorestaRpcImpl(
         val arguments = JSONArray()
         arguments.put(descriptor)
 
-        getBlockchainInfo().first().onSuccess { result ->
-            Log.d(
-                TAG,
-                "loadDescriptor: loading initial block: ${result.result.ibd}"
+        emit(
+            sendJsonRpcRequest(
+                host,
+                RpcMethods.LOAD_DESCRIPTOR.method,
+                arguments
             )
-            if (result.result.ibd) {
-                delay(10.seconds)
-                loadDescriptor(descriptor).firstOrNull()
-            } else {
-                emit(
-                    sendJsonRpcRequest(
-                        host,
-                        RpcMethods.LOAD_DESCRIPTOR.method,
-                        arguments
-                    )
-                )
-            }
-        }.onFailure {
-            delay(30.seconds)
-            loadDescriptor(descriptor).firstOrNull()
-        }
+        )
     }
 
     override suspend fun getPeerInfo(): Flow<Result<GetPeerInfoResponse>> =
@@ -164,7 +144,13 @@ class FlorestaRpcImpl(
             val response = client.newCall(request).execute()
 
             val body = response.body
-            Result.success(JSONObject(body?.string().orEmpty()))
+            val json = JSONObject(body?.string().orEmpty())
+
+            if (json.has("error")) {
+                Result.failure(Exception(json.getJSONObject("error").getString("message")))
+            } else {
+                Result.success(json)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "sendJsonRpcRequest error:", e)
             Result.Companion.failure(e)
