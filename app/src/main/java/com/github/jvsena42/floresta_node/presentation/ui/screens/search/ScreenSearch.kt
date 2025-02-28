@@ -19,15 +19,27 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.getValue
 import com.github.jvsena42.floresta_node.R
 import com.github.jvsena42.floresta_node.presentation.ui.theme.FlorestaNodeTheme
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+fun ScreenSearch(
+    viewModel: SearchViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    ScreenSearch(uiState = uiState, onAction = viewModel::onAction)
+    
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

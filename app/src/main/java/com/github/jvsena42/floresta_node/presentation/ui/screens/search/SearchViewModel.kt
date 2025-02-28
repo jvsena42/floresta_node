@@ -42,6 +42,10 @@ class SearchViewModel(
         searchJob = CoroutineScope(Dispatchers.IO + SupervisorJob())
         searchJob.launch{
             delay(1.seconds)
+            if (_uiState.value.transactionId.isEmpty()) {
+                _uiState.update { it.copy(isLoading = false) }
+                return@launch
+            }
             florestaRpc.getTransaction(_uiState.value.transactionId).collect { result ->
                 result.onSuccess { data ->
                     _uiState.update { it.copy(searchResult = data.toString()) }
