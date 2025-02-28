@@ -22,11 +22,25 @@ class SettingsViewModel(
             is SettingsAction.OnDescriptorChanged -> {
                 _uiState.value = _uiState.value.copy(descriptorText = action.descriptor.removeSpaces())
             }
-            is SettingsAction.OnClickUpdateDescriptor -> {
-                _uiState.value = _uiState.value.copy(isLoading = true)
-            }
+            is SettingsAction.OnClickUpdateDescriptor -> updateDescriptor()
 
             SettingsAction.OnClickRescan -> rescan()
+        }
+    }
+
+    private fun updateDescriptor() {
+        _uiState.value = _uiState.value.copy(isLoading = true)
+        viewModelScope.launch(Dispatchers.IO) {
+            florestaRpc.loadDescriptor(_uiState.value.descriptorText)
+                .collect { result ->
+                    result.onSuccess { data ->
+                        Log.d(TAG, "updateDescriptor: Success: $data")
+                    }.onFailure { error ->
+                        Log.d(TAG, "updateDescriptor: Fail: ${error.stackTraceToString()}")
+                    }
+
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                }
         }
     }
 
