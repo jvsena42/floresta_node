@@ -48,27 +48,13 @@ class FlorestaRpcImpl(
         val arguments = JSONArray()
         arguments.put(descriptor)
 
-        getBlockchainInfo().first().onSuccess { result ->
-            Log.d(
-                TAG,
-                "loadDescriptor: loading initial block: ${result.result.ibd}"
+        emit(
+            sendJsonRpcRequest(
+                host,
+                RpcMethods.LOAD_DESCRIPTOR.method,
+                arguments
             )
-            if (result.result.ibd) {
-                delay(10.seconds)
-                loadDescriptor(descriptor).firstOrNull()
-            } else {
-                emit(
-                    sendJsonRpcRequest(
-                        host,
-                        RpcMethods.LOAD_DESCRIPTOR.method,
-                        arguments
-                    )
-                )
-            }
-        }.onFailure {
-            delay(30.seconds)
-            loadDescriptor(descriptor).firstOrNull()
-        }
+        )
     }
 
     override suspend fun getPeerInfo(): Flow<Result<GetPeerInfoResponse>> =
