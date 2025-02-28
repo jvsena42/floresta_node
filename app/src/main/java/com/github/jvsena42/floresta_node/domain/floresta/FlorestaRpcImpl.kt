@@ -6,10 +6,7 @@ import com.github.jvsena42.floresta_node.domain.model.florestaRPC.GetBlockchainI
 import com.github.jvsena42.floresta_node.domain.model.florestaRPC.GetPeerInfoResponse
 import com.github.jvsena42.floresta_node.domain.model.florestaRPC.RpcMethods
 import com.google.gson.Gson
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -19,10 +16,7 @@ import org.json.JSONObject
 import kotlin.apply
 import kotlin.fold
 import kotlin.jvm.java
-import kotlin.onFailure
-import kotlin.onSuccess
 import kotlin.text.orEmpty
-import kotlin.time.Duration.Companion.seconds
 
 class FlorestaRpcImpl(
     private val gson: Gson,
