@@ -9,21 +9,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
 class SettingsViewModel(
     private val florestaRpc: FlorestaRpc
-): ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState(nodeAddress = ELECTRUM_ADDRESS))
     val uiState = _uiState.asStateFlow()
 
     fun onAction(action: SettingsAction) {
-        when(action) {
+        when (action) {
             is SettingsAction.OnDescriptorChanged -> {
-                _uiState.value = _uiState.value.copy(descriptorText = action.descriptor.removeSpaces())
+                _uiState.update {
+                    it.copy(descriptorText = action.descriptor.removeSpaces())
+                }
             }
+
             is SettingsAction.OnClickUpdateDescriptor -> updateDescriptor()
 
             SettingsAction.OnClickRescan -> rescan()
@@ -31,7 +35,7 @@ class SettingsViewModel(
     }
 
     private fun updateDescriptor() {
-        _uiState.value = _uiState.value.copy(isLoading = true)
+        _uiState.update { it.copy(isLoading = true)}
         viewModelScope.launch(Dispatchers.IO) {
             florestaRpc.loadDescriptor(_uiState.value.descriptorText)
                 .collect { result ->
@@ -40,14 +44,15 @@ class SettingsViewModel(
                     }.onFailure { error ->
                         Log.d(TAG, "updateDescriptor: Fail: ${error.message}")
                     }
-                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _uiState.update { it.copy(isLoading = false)}
                 }
         }
     }
 
     private fun rescan() {
+        if (_uiState.value.descriptorText.removeSpaces().isEmpty()) return
+        _uiState.update { it.copy(isLoading = true)}
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = _uiState.value.copy(isLoading = true)
             florestaRpc.rescan().collect { result ->
                 result.onSuccess { data ->
                     Log.d(TAG, "rescan: Success: $data")
@@ -56,7 +61,7 @@ class SettingsViewModel(
                 }
 
                 delay(2.seconds)
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                _uiState.update { it.copy(isLoading = false)}
             }
         }
     }
