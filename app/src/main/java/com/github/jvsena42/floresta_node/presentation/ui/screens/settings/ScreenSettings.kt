@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.github.jvsena42.floresta_node.R
@@ -66,6 +69,10 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
                 onValueChange = { newText -> onAction(SettingsAction.OnDescriptorChanged(newText)) },
                 label = { Text(stringResource(R.string.set_your_wallet_descriptor)) },
                 placeholder = { Text(stringResource(R.string.descriptor_placeholder)) },
+                maxLines = 1,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { onAction(SettingsAction.OnClickUpdateDescriptor) }),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)

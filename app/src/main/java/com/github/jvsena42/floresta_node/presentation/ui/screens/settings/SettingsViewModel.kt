@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.github.jvsena42.floresta_node.data.FlorestaRpc
 import com.github.jvsena42.floresta_node.presentation.utils.removeSpaces
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 class SettingsViewModel(
     private val florestaRpc: FlorestaRpc
@@ -36,9 +38,8 @@ class SettingsViewModel(
                     result.onSuccess { data ->
                         Log.d(TAG, "updateDescriptor: Success: $data")
                     }.onFailure { error ->
-                        Log.d(TAG, "updateDescriptor: Fail: ${error.stackTraceToString()}")
+                        Log.d(TAG, "updateDescriptor: Fail: ${error.message}")
                     }
-
                     _uiState.value = _uiState.value.copy(isLoading = false)
                 }
         }
@@ -51,9 +52,10 @@ class SettingsViewModel(
                 result.onSuccess { data ->
                     Log.d(TAG, "rescan: Success: $data")
                 }.onFailure { error ->
-                    Log.d(TAG, "rescan: Fail: ${error.stackTraceToString()}")
+                    Log.d(TAG, "rescan: Fail: ${error.message}")
                 }
 
+                delay(2.seconds)
                 _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
