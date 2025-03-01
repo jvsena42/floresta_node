@@ -3,6 +3,8 @@ package com.github.jvsena42.floresta_node.domain.floresta
 import android.util.Log
 import com.florestad.Config
 import com.florestad.Florestad
+import com.github.jvsena42.floresta_node.data.PreferenceKeys
+import com.github.jvsena42.floresta_node.data.PreferencesDataSource
 import com.github.jvsena42.floresta_node.domain.model.Constants
 import com.florestad.Network as FlorestaNetwork
 
@@ -13,6 +15,7 @@ interface FlorestaDaemon {
 
 class FlorestaDaemonImpl(
     private val datadir: String,
+    private val preferencesDataSource: PreferencesDataSource
 ) : FlorestaDaemon {
 
     var isRunning = false
@@ -28,7 +31,10 @@ class FlorestaDaemonImpl(
             val config = Config(
                 dataDir = datadir,
                 electrumAddress = Constants.ELECTRUM_ADDRESS,
-                network = FlorestaNetwork.SIGNET,
+                network = preferencesDataSource.getString(
+                    PreferenceKeys.CURRENT_NETWORK,
+                    if (BuildConfig.DEBUG) FlorestaNetwork.SIGNET.name else FlorestaNetwork.BITCOIN.name
+                ).toFlorestaNetwork(),
             )
             daemon = Florestad.fromConfig(config)
             daemon.start().also {

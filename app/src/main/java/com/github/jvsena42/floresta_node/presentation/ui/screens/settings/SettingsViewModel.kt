@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.jvsena42.floresta_node.data.FlorestaRpc
+import com.github.jvsena42.floresta_node.data.PreferenceKeys
+import com.github.jvsena42.floresta_node.data.PreferencesDataSource
 import com.github.jvsena42.floresta_node.domain.model.Constants
 import com.github.jvsena42.floresta_node.presentation.utils.removeSpaces
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +17,8 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
 class SettingsViewModel(
-    private val florestaRpc: FlorestaRpc
+    private val florestaRpc: FlorestaRpc,
+    private val preferencesDataSource: PreferencesDataSource
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState(signetAddress = Constants.ELECTRUM_ADDRESS))
@@ -38,7 +41,11 @@ class SettingsViewModel(
                 it.copy(nodeAddress = action.address.removeSpaces())
             }
 
-            is SettingsAction.OnNetworkSelected -> TODO()
+            is SettingsAction.OnNetworkSelected -> {
+                preferencesDataSource.setString(PreferenceKeys.CURRENT_NETWORK, action.network)
+                _uiState.update { it.copy(selectedNetwork = action.network) }
+                //TODO RESTART APPLICATION
+            }
         }
     }
 
