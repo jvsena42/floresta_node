@@ -3,6 +3,7 @@ package com.github.jvsena42.floresta_node.domain.floresta
 import android.util.Log
 import com.florestad.Config
 import com.florestad.Florestad
+import com.github.jvsena42.floresta_node.domain.model.Constants
 import com.florestad.Network as FlorestaNetwork
 
 interface FlorestaDaemon {
@@ -26,7 +27,7 @@ class FlorestaDaemonImpl(
             Log.d(TAG, "start: datadir: $datadir")
             val config = Config(
                 dataDir = datadir,
-                electrumAddress = ELECTRUM_ADDRESS,
+                electrumAddress = Constants.ELECTRUM_ADDRESS,
                 network = FlorestaNetwork.SIGNET,
             )
             daemon = Florestad.fromConfig(config)
@@ -46,7 +47,6 @@ class FlorestaDaemonImpl(
     }
 
     companion object {
-        const val ELECTRUM_ADDRESS = "127.0.0.1:50001"
         private const val TAG = "FlorestaDaemonImpl"
     }
 }

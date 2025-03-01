@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.jvsena42.floresta_node.data.FlorestaRpc
+import com.github.jvsena42.floresta_node.domain.model.Constants
 import com.github.jvsena42.floresta_node.presentation.utils.removeSpaces
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -17,7 +18,7 @@ class SettingsViewModel(
     private val florestaRpc: FlorestaRpc
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SettingsUiState(signetAddress = ELECTRUM_ADDRESS))
+    private val _uiState = MutableStateFlow(SettingsUiState(signetAddress = Constants.ELECTRUM_ADDRESS))
     val uiState = _uiState.asStateFlow()
 
     fun onAction(action: SettingsAction) {
@@ -98,6 +99,5 @@ class SettingsViewModel(
 
     companion object {
         private const val TAG = "SettingsViewModel"
-        const val ELECTRUM_ADDRESS = "127.0.0.1:50001"
     }
 }
