@@ -37,6 +37,8 @@ class SettingsViewModel(
             is SettingsAction.OnNodeAddressChanged ->  _uiState.update {
                 it.copy(nodeAddress = action.address.removeSpaces())
             }
+
+            is SettingsAction.OnNetworkSelected -> TODO()
         }
     }
 
