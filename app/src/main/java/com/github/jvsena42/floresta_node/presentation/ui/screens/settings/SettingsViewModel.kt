@@ -17,7 +17,7 @@ class SettingsViewModel(
     private val florestaRpc: FlorestaRpc
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SettingsUiState(nodeAddress = ELECTRUM_ADDRESS))
+    private val _uiState = MutableStateFlow(SettingsUiState(signetAddress = ELECTRUM_ADDRESS))
     val uiState = _uiState.asStateFlow()
 
     fun onAction(action: SettingsAction) {
@@ -32,6 +32,30 @@ class SettingsViewModel(
 
             SettingsAction.OnClickRescan -> rescan()
             SettingsAction.ClearSnackBarMessage -> _uiState.update { it.copy(errorMessage = "") }
+            SettingsAction.OnClickConnectNode -> connectNode()
+            is SettingsAction.OnNodeAddressChanged ->  _uiState.update {
+                it.copy(nodeAddress = action.address.removeSpaces())
+            }
+        }
+    }
+
+    private fun connectNode() {
+        if (_uiState.value.nodeAddress.isEmpty()) return
+        _uiState.update { it.copy(isLoading = true)}
+        viewModelScope.launch(Dispatchers.IO) {
+            florestaRpc.addNode(_uiState.value.nodeAddress)
+                .collect { result ->
+                    result.onSuccess { data ->
+                        _uiState.update { it.copy(nodeAddress = "") }
+                        Log.d(TAG, "connectNode: Success: $data")
+                    }.onFailure { error ->
+                        Log.d(TAG, "connectNode: Fail: ${error.message}")
+                        _uiState.update { it.copy(errorMessage = error.message.toString()) }
+                    }
+
+                    delay(2.seconds)
+                    _uiState.update { it.copy(isLoading = false)}
+                }
         }
     }
 
@@ -41,6 +65,7 @@ class SettingsViewModel(
             florestaRpc.loadDescriptor(_uiState.value.descriptorText)
                 .collect { result ->
                     result.onSuccess { data ->
+                        _uiState.update { it.copy(descriptorText = "") }
                         Log.d(TAG, "updateDescriptor: Success: $data")
                     }.onFailure { error ->
                         Log.d(TAG, "updateDescriptor: Fail: ${error.message}")

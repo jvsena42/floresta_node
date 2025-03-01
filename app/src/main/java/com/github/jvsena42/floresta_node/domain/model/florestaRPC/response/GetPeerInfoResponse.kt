@@ -1,4 +1,4 @@
-package com.github.jvsena42.floresta_node.domain.model.florestaRPC
+package com.github.jvsena42.floresta_node.domain.model.florestaRPC.response
 
 
 import com.google.gson.annotations.SerializedName

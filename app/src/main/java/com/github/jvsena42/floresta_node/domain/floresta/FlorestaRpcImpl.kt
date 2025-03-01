@@ -2,9 +2,10 @@ package com.github.jvsena42.floresta_node.domain.floresta
 
 import android.util.Log
 import com.github.jvsena42.floresta_node.data.FlorestaRpc
-import com.github.jvsena42.floresta_node.domain.model.florestaRPC.GetBlockchainInfoResponse
-import com.github.jvsena42.floresta_node.domain.model.florestaRPC.GetPeerInfoResponse
+import com.github.jvsena42.floresta_node.domain.model.florestaRPC.response.GetBlockchainInfoResponse
+import com.github.jvsena42.floresta_node.domain.model.florestaRPC.response.GetPeerInfoResponse
 import com.github.jvsena42.floresta_node.domain.model.florestaRPC.RpcMethods
+import com.github.jvsena42.floresta_node.domain.model.florestaRPC.response.AddNodeResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -103,6 +104,39 @@ class FlorestaRpcImpl(
                 arguments
             )
         )
+    }
+
+    override suspend fun addNode(node: String): Flow<Result<AddNodeResponse>> {
+        Log.d(TAG, "addNode: $node")
+        val arguments = JSONArray()
+        arguments.put(node)
+
+        return flow {
+            sendJsonRpcRequest(
+                host,
+                RpcMethods.ADD_NODE.method,
+                arguments
+            ).fold(
+                onSuccess = { json ->
+
+                    val response = gson.fromJson(
+                        json.toString(),
+                        AddNodeResponse::class.java
+                    )
+
+                    if (response.result?.success == false) {
+                        emit(Result.failure(Exception("Failed to add node")))
+
+                    } else {
+                        emit(Result.success(response))
+                    }
+
+                },
+                onFailure = { e ->
+                    emit(Result.Companion.failure(e))
+                }
+            )
+        }
     }
 
     override suspend fun getBlockchainInfo(): Flow<Result<GetBlockchainInfoResponse>> =
