@@ -46,6 +46,7 @@ class SettingsViewModel(
             florestaRpc.addNode(_uiState.value.nodeAddress)
                 .collect { result ->
                     result.onSuccess { data ->
+                        _uiState.update { it.copy(nodeAddress = "") }
                         Log.d(TAG, "connectNode: Success: $data")
                     }.onFailure { error ->
                         Log.d(TAG, "connectNode: Fail: ${error.message}")
@@ -64,6 +65,7 @@ class SettingsViewModel(
             florestaRpc.loadDescriptor(_uiState.value.descriptorText)
                 .collect { result ->
                     result.onSuccess { data ->
+                        _uiState.update { it.copy(descriptorText = "") }
                         Log.d(TAG, "updateDescriptor: Success: $data")
                     }.onFailure { error ->
                         Log.d(TAG, "updateDescriptor: Fail: ${error.message}")
