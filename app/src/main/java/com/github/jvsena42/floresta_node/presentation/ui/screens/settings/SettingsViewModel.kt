@@ -7,6 +7,8 @@ import com.github.jvsena42.floresta_node.data.FlorestaRpc
 import com.github.jvsena42.floresta_node.data.PreferenceKeys
 import com.github.jvsena42.floresta_node.data.PreferencesDataSource
 import com.github.jvsena42.floresta_node.domain.model.Constants
+import com.github.jvsena42.floresta_node.presentation.utils.EventFlow
+import com.github.jvsena42.floresta_node.presentation.utils.EventFlowImpl
 import com.github.jvsena42.floresta_node.presentation.utils.removeSpaces
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -19,7 +21,7 @@ import kotlin.time.Duration.Companion.seconds
 class SettingsViewModel(
     private val florestaRpc: FlorestaRpc,
     private val preferencesDataSource: PreferencesDataSource
-) : ViewModel() {
+) : ViewModel(), EventFlow<SettingsEvents> by EventFlowImpl() {
 
     private val _uiState = MutableStateFlow(SettingsUiState(signetAddress = Constants.ELECTRUM_ADDRESS))
     val uiState = _uiState.asStateFlow()
@@ -41,12 +43,14 @@ class SettingsViewModel(
                 it.copy(nodeAddress = action.address.removeSpaces())
             }
 
-            is SettingsAction.OnNetworkSelected -> {
-                preferencesDataSource.setString(PreferenceKeys.CURRENT_NETWORK, action.network)
-                _uiState.update { it.copy(selectedNetwork = action.network) }
-                //TODO RESTART APPLICATION
-            }
+            is SettingsAction.OnNetworkSelected -> handleNetworkSelected(action)
         }
+    }
+
+    fun handleNetworkSelected(action: SettingsAction.OnNetworkSelected) {
+        preferencesDataSource.setString(PreferenceKeys.CURRENT_NETWORK, action.network)
+        _uiState.update { it.copy(selectedNetwork = action.network) }
+        viewModelScope.sendEvent(SettingsEvents.OnNetworkChanged)
     }
 
     private fun connectNode() {

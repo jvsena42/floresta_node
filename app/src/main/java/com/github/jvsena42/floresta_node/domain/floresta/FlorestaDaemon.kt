@@ -6,6 +6,8 @@ import com.florestad.Florestad
 import com.github.jvsena42.floresta_node.data.PreferenceKeys
 import com.github.jvsena42.floresta_node.data.PreferencesDataSource
 import com.github.jvsena42.floresta_node.domain.model.Constants
+import com.github.jvsena42.floresta_node.BuildConfig
+
 import com.florestad.Network as FlorestaNetwork
 
 interface FlorestaDaemon {
