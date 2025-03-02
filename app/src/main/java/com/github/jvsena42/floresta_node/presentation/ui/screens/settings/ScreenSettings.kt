@@ -59,11 +59,12 @@ fun ScreenSettings(
     val uiState by viewModel.uiState.collectAsState()
     ScreenSettings(uiState = uiState, onAction = viewModel::onAction)
     LaunchedEffect(viewModel.eventFlow) {
-         viewModel.eventFlow.collect { event ->
+        viewModel.eventFlow.collect { event ->
             when (event) {
                 is SettingsEvents.OnNetworkChanged -> restartApplication()
             }
-        }    }
+        }
+    }
 }
 
 

@@ -48,9 +48,13 @@ class SettingsViewModel(
     }
 
     fun handleNetworkSelected(action: SettingsAction.OnNetworkSelected) {
-        preferencesDataSource.setString(PreferenceKeys.CURRENT_NETWORK, action.network)
-        _uiState.update { it.copy(selectedNetwork = action.network) }
-        viewModelScope.sendEvent(SettingsEvents.OnNetworkChanged)
+        viewModelScope.launch(Dispatchers.IO) {
+            preferencesDataSource.setString(PreferenceKeys.CURRENT_NETWORK, action.network)
+            _uiState.update { it.copy(selectedNetwork = action.network, isLoading = true) }
+            florestaRpc.stop()
+            delay(5.seconds)
+            viewModelScope.sendEvent(SettingsEvents.OnNetworkChanged)
+        }
     }
 
     private fun connectNode() {
