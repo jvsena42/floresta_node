@@ -65,7 +65,6 @@ class SettingsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             preferencesDataSource.setString(PreferenceKeys.CURRENT_NETWORK, action.network)
             _uiState.update { it.copy(selectedNetwork = action.network, isLoading = true) }
-            florestaRpc.stop()
             delay(5.seconds)
             viewModelScope.sendEvent(SettingsEvents.OnNetworkChanged)
         }
