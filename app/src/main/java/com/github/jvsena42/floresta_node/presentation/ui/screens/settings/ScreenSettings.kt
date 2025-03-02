@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
@@ -95,6 +97,7 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(contentPadding)
+                .verticalScroll(rememberScrollState())
         ) {
             AnimatedVisibility(visible = uiState.isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -152,6 +155,45 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            var expanded by remember { mutableStateOf(false) }
+
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                TextField(
+                    value = uiState.selectedNetwork,
+                    readOnly = true,
+                    onValueChange = { newText -> onAction(SettingsAction.OnNetworkSelected(newText)) },
+                    label = { Text(stringResource(R.string.select_a_network)) },
+                    supportingText = { Text(stringResource(R.string.the_application_will_be_restarted_to_update_the_network)) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .menuAnchor()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    uiState.network.forEach { network ->
+                        DropdownMenuItem(
+                            text = { Text(network.name) },
+                            onClick = {
+                                onAction(SettingsAction.OnNetworkSelected(network.name))
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
             TextField(
                 value = uiState.nodeAddress,
                 enabled = !uiState.isLoading,
@@ -180,42 +222,6 @@ private fun ScreenSettings(uiState: SettingsUiState, onAction: (SettingsAction) 
             }
 
             Spacer(modifier = Modifier.height(32.dp))
-
-            var expanded by remember { mutableStateOf(false) }
-
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
-            ) {
-                TextField(
-                    value = uiState.selectedNetwork,
-                    readOnly = true,
-                    onValueChange = { newText -> onAction(SettingsAction.OnNetworkSelected(newText)) },
-                    label = { Text(stringResource(R.string.select_a_network)) },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .menuAnchor()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    uiState.network.forEach { network ->
-                        DropdownMenuItem(
-                            text = { Text(network.name) },
-                            onClick = {
-                                onAction(SettingsAction.OnNetworkSelected(network.name))
-                                expanded = false
-                            }
-                        )
-                    }
-                }
-            }
 
             Spacer(modifier = Modifier.weight(1f))
 
