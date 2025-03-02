@@ -3,6 +3,7 @@ package com.github.jvsena42.floresta_node.presentation.ui.screens.settings
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.jvsena42.floresta_node.BuildConfig
 import com.github.jvsena42.floresta_node.data.FlorestaRpc
 import com.github.jvsena42.floresta_node.data.PreferenceKeys
 import com.github.jvsena42.floresta_node.data.PreferencesDataSource
@@ -17,6 +18,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
+import com.florestad.Network as FlorestaNetwork
+
 
 class SettingsViewModel(
     private val florestaRpc: FlorestaRpc,
@@ -25,6 +28,17 @@ class SettingsViewModel(
 
     private val _uiState = MutableStateFlow(SettingsUiState(signetAddress = Constants.ELECTRUM_ADDRESS))
     val uiState = _uiState.asStateFlow()
+
+    init {
+        _uiState.update {
+            it.copy(
+                selectedNetwork = preferencesDataSource.getString(
+                    PreferenceKeys.CURRENT_NETWORK,
+                    if (BuildConfig.DEBUG) FlorestaNetwork.SIGNET.name else FlorestaNetwork.BITCOIN.name
+                ),
+            )
+        }
+    }
 
     fun onAction(action: SettingsAction) {
         when (action) {
