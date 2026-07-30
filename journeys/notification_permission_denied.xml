@@ -1,0 +1,32 @@
+<journey name="Notification permission denied">
+    <description>
+        Covers the denial path of the POST_NOTIFICATIONS prompt. The node must keep running
+        even when the user refuses notifications — the foreground service is what syncs the
+        chain, and it must not be gated on a permission the user is free to decline. After
+        Android auto-applies "don't ask again" (two denials), the snackbar's action must
+        switch from "Enable" to "Open settings", because a further request would return
+        denied instantly with no dialog and leave a dead button.
+
+        PRECONDITION: the permission must not be granted. Reset it before starting with
+        `adb shell pm revoke com.github.jvsena42.mandacaru android.permission.POST_NOTIFICATIONS`
+        followed by `adb shell am force-stop com.github.jvsena42.mandacaru`. Revoking is only
+        meaningful on Android 13+ (API 33); on older devices notifications are granted at
+        install time, so mark every snackbar step SKIPPED rather than FAILED.
+    </description>
+    <actions>
+        <action>Revoke the notification permission and force-stop the app (`adb shell pm revoke com.github.jvsena42.mandacaru android.permission.POST_NOTIFICATIONS` then `adb shell am force-stop com.github.jvsena42.mandacaru`); if the device is below API 33, SKIP the remaining steps</action>
+        <action>Launch the Mandacaru app and wait for the splash screen to dismiss (poll until nav_node is present)</action>
+        <action>Verify the node started despite the missing permission: `adb shell dumpsys activity services com.github.jvsena42.mandacaru` lists FlorestaService as running, and the Node tab shows real values rather than placeholders — node_network reads a network name (e.g. BITCOIN) and node_peer_count is above zero. Do not assert on node_sync_percentage here; it is absent during the header-sync phase. Poll for up to 30 seconds, since peers take a few seconds to connect.</action>
+        <action>Verify the enable-notifications snackbar (snackbar_enable_notifications) is present</action>
+        <action>Tap the "Enable" action on the snackbar (by text) and tap "Don't allow" on the system permission dialog (by text)</action>
+        <action>Verify snackbar_enable_notifications is still present, its action is still "Enable", and its message has escalated to the warning about Android stopping the node and wallets losing access to the Electrum server</action>
+        <action>Tap the "Enable" action again (by text) and tap "Don't allow" on the system permission dialog a second time — Android now auto-applies "don't ask again"</action>
+        <action>Verify the snackbar action label has changed to "Open settings" (by text)</action>
+        <action>Tap "Open settings" (by text) and verify the system app-details settings screen for Mandacaru opens</action>
+        <action>Enable notifications from that settings screen (open "Notifications" and turn on "All Mandacaru notifications"), then press Back until the app is in the foreground again</action>
+        <action>Verify snackbar_enable_notifications is gone now that the app has resumed with the permission granted</action>
+        <action>Revoke the permission again and relaunch the app so the snackbar reappears (poll until snackbar_enable_notifications is present)</action>
+        <action>Dismiss the snackbar with its ✕ (target the "Dismiss" content-description) and verify snackbar_enable_notifications disappears without the permission being granted</action>
+        <action>Tap through the Blockchain, Transactions and Settings navigation items and back to nav_node, and verify the snackbar does not come back and the app has not crashed</action>
+    </actions>
+</journey>

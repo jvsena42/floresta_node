@@ -69,10 +69,28 @@ when adding or renaming a tag.
 | `nav_blockchain`  | Blockchain nav item                      |
 | `nav_transaction` | Transactions nav item                    |
 | `nav_settings`    | Settings nav item                        |
+| `snackbar_enable_notifications` | message text of the "Enable notifications…" snackbar (see below) |
 
 `nav_settings` carries a `BadgedBox` dot when **either** an app update is unseen **or** no wallet
 descriptor is loaded. The badge is decoration on the same node, so it does not change the
 resource-id — do not assert on it.
+
+`snackbar_enable_notifications` is hosted by the root `Scaffold`, so it is visible on **every**
+tab, not just Node. It is **conditional**: it appears whenever notifications are disabled and the
+user has not dismissed it, and it disappears by itself the moment the permission is granted — by
+the system dialog or from the settings page — with no timeout otherwise. Its **message changes
+after a denial**: it opens as the "Enable notifications to see when the node is running"
+invitation and escalates to a warning that Android may stop the node and cut wallets off from the
+Electrum server, so match on the resource-id rather than the text. The app never opens the
+permission dialog on its own; it opens only when the snackbar's action is tapped. That action
+reads "Enable" until a request is denied with no rationale left (Android's automatic "don't ask
+again", after two denials), at which point it becomes "Open settings" and launches the app's
+system settings page. Its ✕ dismisses it for the rest of the process. Target the action by its
+"Enable"/"Open settings" text and the ✕ by the "Dismiss" content-description. On Android 12 and
+below there is no runtime permission, so it appears only if notifications were turned off in
+system settings. While it is showing, `snackbar_add_descriptor` is deliberately suppressed so the
+two prompts cannot overlap. Reset it for a journey with
+`adb shell pm revoke com.github.jvsena42.mandacaru android.permission.POST_NOTIFICATIONS`.
 
 ### Node screen (`node/ScreenNode.kt`)
 

@@ -1,0 +1,28 @@
+<journey name="Enable notifications snackbar">
+    <description>
+        Covers the POST_NOTIFICATIONS prompt on the Node tab: the app must never open the
+        system permission dialog on its own at launch, the snackbar must offer "Enable", and
+        — the regression this journey exists for — the snackbar must disappear on its own the
+        moment the permission is granted through the system dialog, without the user
+        dismissing it.
+
+        PRECONDITION: the permission must not be granted. Reset it before starting with
+        `adb shell pm revoke com.github.jvsena42.mandacaru android.permission.POST_NOTIFICATIONS`
+        followed by `adb shell am force-stop com.github.jvsena42.mandacaru`. Revoking is only
+        meaningful on Android 13+ (API 33); on older devices notifications are granted at
+        install time, so mark every snackbar step SKIPPED rather than FAILED.
+    </description>
+    <actions>
+        <action>Revoke the notification permission and force-stop the app (`adb shell pm revoke com.github.jvsena42.mandacaru android.permission.POST_NOTIFICATIONS` then `adb shell am force-stop com.github.jvsena42.mandacaru`); if the device is below API 33, SKIP the remaining steps</action>
+        <action>Launch the Mandacaru app and wait for the splash screen to dismiss (poll until nav_node is present)</action>
+        <action>Verify no system permission dialog is on screen — the layout shows the app's own UI, not a "Allow Mandacaru to send you notifications?" dialog</action>
+        <action>Verify the enable-notifications snackbar (snackbar_enable_notifications) is present on the Node tab</action>
+        <action>Verify the snackbar offers an "Enable" action (target by text) and not "Open settings"</action>
+        <action>Tap the "Enable" action on the snackbar (by text)</action>
+        <action>Verify the system permission dialog now appears (it renders in a separate window, so target its buttons by text)</action>
+        <action>Tap "Allow" on the system permission dialog</action>
+        <action>Verify snackbar_enable_notifications is no longer present, without having tapped its ✕ — poll the layout for up to 5 seconds to allow the exit animation to finish</action>
+        <action>Verify no second permission dialog appears and the app has not crashed (nav_node is still present and selected)</action>
+        <action>Verify the foreground service notification is now posted (`adb shell dumpsys notification --noredact | grep -i mandacaru` shows an entry)</action>
+    </actions>
+</journey>
