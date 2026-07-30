@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -118,6 +119,8 @@ fun ScreenSettings(
     modifier: Modifier = Modifier,
     bottomContentPadding: Dp = 0.dp,
     onOpenLogs: () -> Unit = {},
+    focusDescriptors: Boolean = false,
+    onFocusHandled: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -131,6 +134,8 @@ fun ScreenSettings(
         onAction = viewModel::onAction,
         modifier = modifier,
         bottomContentPadding = bottomContentPadding,
+        focusDescriptors = focusDescriptors,
+        onFocusHandled = onFocusHandled,
     )
     LaunchedEffect(viewModel.eventFlow) {
         viewModel.eventFlow.collect { event ->
@@ -162,10 +167,21 @@ private fun ScreenSettings(
     onAction: (SettingsAction) -> Unit,
     modifier: Modifier = Modifier,
     bottomContentPadding: Dp = 0.dp,
+    focusDescriptors: Boolean = false,
+    onFocusHandled: () -> Unit = {},
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val currentOnAction by rememberUpdatedState(onAction)
+    val currentOnFocusHandled by rememberUpdatedState(onFocusHandled)
+    val gridState = rememberLazyStaggeredGridState()
+
+    LaunchedEffect(focusDescriptors) {
+        if (!focusDescriptors) return@LaunchedEffect
+        currentOnAction(SettingsAction.ExpandDescriptors)
+        gridState.scrollToItem(DESCRIPTORS_ITEM_INDEX)
+        currentOnFocusHandled()
+    }
 
     LaunchedEffect(uiState.snackBarMessage) {
         if (uiState.snackBarMessage.isNotEmpty()) {
@@ -205,6 +221,7 @@ private fun ScreenSettings(
             contentAlignment = Alignment.TopCenter,
         ) {
             LazyVerticalStaggeredGrid(
+                state = gridState,
                 columns = columns,
                 modifier = Modifier
                     .fillMaxHeight()
@@ -300,6 +317,7 @@ private fun ScreenSettings(
                         icon = Icons.Outlined.Wallet,
                         isExpanded = uiState.isDescriptorsExpanded,
                         onToggle = { onAction(SettingsAction.ToggleDescriptorsExpanded) },
+                        showBadge = uiState.needsDescriptor,
                         modifier = Modifier.animateItem(),
                     ) {
                         Column(modifier = Modifier.fillMaxWidth()) {
@@ -1290,3 +1308,7 @@ private fun TabletPreview() {
         }
     }
 }
+
+// The title, the progress bar and the Node Address hero card all render unconditionally
+// above the Descriptors section. Bump this if an item is inserted above it.
+private const val DESCRIPTORS_ITEM_INDEX = 3

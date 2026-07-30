@@ -10,6 +10,9 @@ naming:
 
 complexity:
   LongParameterList:
+    # ViewModels take one constructor parameter per injected collaborator; Koin wires them
+    # by name, so splitting them into a holder object would only hide the dependencies.
+    constructorThreshold: 9
     ignoreAnnotated:
       - 'Composable'
   LongMethod:

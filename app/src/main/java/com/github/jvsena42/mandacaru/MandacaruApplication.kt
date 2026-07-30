@@ -11,6 +11,7 @@ import com.github.jvsena42.mandacaru.data.FlorestaRpc
 import com.github.jvsena42.mandacaru.data.GeoIpDatabaseRepository
 import com.github.jvsena42.mandacaru.data.PreferencesDataSource
 import com.github.jvsena42.mandacaru.data.PreferencesDataSourceImpl
+import com.github.jvsena42.mandacaru.data.WalletDescriptorRepository
 import com.github.jvsena42.mandacaru.data.floresta.FlorestaDaemonImpl
 import com.github.jvsena42.mandacaru.data.floresta.FlorestaRpcImpl
 import com.github.jvsena42.mandacaru.data.geoip.GeoIpDatabase
@@ -19,6 +20,7 @@ import com.github.jvsena42.mandacaru.data.geoip.MmdbPeerCountryLookup
 import com.github.jvsena42.mandacaru.data.network.NetworkPolicy
 import com.github.jvsena42.mandacaru.data.network.NetworkPolicyManager
 import com.github.jvsena42.mandacaru.data.update.AppUpdateRepositoryImpl
+import com.github.jvsena42.mandacaru.data.wallet.WalletDescriptorRepositoryImpl
 import com.github.jvsena42.mandacaru.domain.floresta.FlorestaDaemon
 import com.github.jvsena42.mandacaru.domain.geoip.PeerCountryLookup
 import com.github.jvsena42.mandacaru.domain.floresta.UtreexoBridgeAutoConnect
@@ -91,6 +93,7 @@ val presentationModule = module {
             appUpdateRepository = get(),
             geoIpDatabaseRepository = get(),
             descriptorScanner = get(),
+            walletDescriptorRepository = get(),
             context = androidContext(),
         )
     }
@@ -98,6 +101,7 @@ val presentationModule = module {
         MainViewModel(
             appUpdateRepository = get(),
             geoIpDatabaseRepository = get(),
+            walletDescriptorRepository = get(),
         )
     }
     viewModel { DeveloperLogsViewModel(context = androidContext()) }
@@ -122,6 +126,7 @@ val dataModule = module {
     single<AppUpdateRepository> {
         AppUpdateRepositoryImpl(gson = Gson(), preferencesDataSource = get())
     }
+    single<WalletDescriptorRepository> { WalletDescriptorRepositoryImpl(florestaRpc = get()) }
     single { GeoIpDatabase(databaseFile = File(androidContext().filesDir, GEOIP_DATABASE_FILE)) }
     single<PeerCountryLookup> {
         MmdbPeerCountryLookup(database = get(), preferencesDataSource = get())

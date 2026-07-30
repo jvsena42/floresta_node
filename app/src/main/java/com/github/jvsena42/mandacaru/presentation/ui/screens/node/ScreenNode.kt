@@ -39,6 +39,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -51,12 +52,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import android.content.Intent
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.Hub
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Speed
+import androidx.compose.material.icons.outlined.Wallet
 import androidx.compose.material.icons.outlined.LinkOff
 import androidx.compose.material.icons.outlined.NetworkPing
 import androidx.compose.material.icons.outlined.Warning
@@ -110,6 +113,8 @@ fun ScreenNode(
     modifier: Modifier = Modifier,
     restartApplication: () -> Unit = {},
     bottomContentPadding: Dp = 0.dp,
+    needsDescriptor: Boolean = false,
+    onAddDescriptor: () -> Unit = {},
     viewModel: NodeViewModel = koinViewModel()
 ) {
     RequestNotificationPermissions(onPermissionChange = {})
@@ -168,13 +173,30 @@ fun ScreenNode(
         }
     }
 
+    // Rendered next to the host rather than through it: showSnackbar with an indefinite
+    // duration would hold the single host slot, queueing the snapshot and clipboard
+    // messages behind it until the user dismissed this one.
+    var descriptorPromptDismissed by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         modifier = modifier,
         snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
+            Column(
                 modifier = Modifier.padding(bottom = bottomContentPadding),
-            )
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                AnimatedVisibility(
+                    visible = needsDescriptor && !descriptorPromptDismissed,
+                    enter = fadeIn(),
+                    exit = fadeOut() + shrinkVertically(),
+                ) {
+                    AddDescriptorSnackbar(
+                        onAdd = onAddDescriptor,
+                        onDismiss = { descriptorPromptDismissed = true },
+                    )
+                }
+                SnackbarHost(hostState = snackbarHostState)
+            }
         },
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0),
@@ -1142,6 +1164,36 @@ private fun ApplyingSnapshotOverlay() {
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
+    }
+}
+
+@Composable
+private fun AddDescriptorSnackbar(onAdd: () -> Unit, onDismiss: () -> Unit) {
+    Snackbar(
+        modifier = Modifier.padding(horizontal = 12.dp),
+        action = {
+            TextButton(onClick = onAdd) {
+                Text(
+                    text = stringResource(R.string.add_descriptor),
+                    color = MaterialTheme.colorScheme.inversePrimary,
+                )
+            }
+        },
+        dismissAction = {
+            IconButton(onClick = onDismiss) {
+                Icon(
+                    imageVector = Icons.Outlined.Close,
+                    contentDescription = stringResource(R.string.dismiss),
+                )
+            }
+        },
+    ) {
+        // The tag rides the message rather than the Snackbar root: the root emits no
+        // semantics of its own, so a tag there never surfaces in `android layout`.
+        Text(
+            text = stringResource(R.string.no_descriptor_snackbar_message),
+            modifier = Modifier.testTag("snackbar_add_descriptor"),
+        )
     }
 }
 

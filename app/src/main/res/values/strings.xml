@@ -47,6 +47,11 @@
     <string name="validated_blocks">Validated Blocks</string>
     <string name="descriptors">Descriptors</string>
     <string name="no_descriptors_loaded">No descriptors loaded yet</string>
+    <string name="add_descriptor">Add descriptor</string>
+    <string name="no_descriptor_snackbar_message">Add a wallet descriptor so the node can watch your addresses</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="no_descriptor_transactions_title">No wallet loaded</string>
+    <string name="no_descriptor_transactions_body">Load your wallet descriptor so the node can watch your addresses. Until then, none of your transactions will be found.</string>
     <string name="share_descriptor">Share</string>
     <string name="tab_descriptor">Descriptor</string>
     <string name="tab_extended_key">Extended key</string>

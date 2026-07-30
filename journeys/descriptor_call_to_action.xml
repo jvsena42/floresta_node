@@ -1,0 +1,26 @@
+<journey name="Descriptor call to action">
+    <description>
+        With no descriptor loaded, verifies the app actively asks for one: a persistent snackbar
+        on the Node tab, an empty state on the Transactions tab, and a deep link that lands on
+        Settings with the Descriptors section already expanded and scrolled into view. Requires a
+        clean install — descriptors persist in the node's data directory, so uninstall the app
+        first if a descriptor has ever been loaded on this network.
+    </description>
+    <actions>
+        <action>Launch the Mandacaru app and wait for the splash screen to dismiss (poll until nav_node is present)</action>
+        <action>Poll for up to 30 seconds until snackbar_add_descriptor appears on the Node tab; it is absent until the node's RPC server answers listdescriptors twice, so do not fail on the first layout dump</action>
+        <action>Dismiss the snackbar with its ✕ (target the "Dismiss" content-description) and verify snackbar_add_descriptor disappears without a descriptor being loaded</action>
+        <action>Tap the Transactions navigation item (nav_transaction)</action>
+        <action>Verify the "Add descriptor" button (button_add_descriptor) is present instead of the grey lookup hint</action>
+        <action>Tap the Add descriptor button (button_add_descriptor)</action>
+        <action>Verify nav_settings is now the selected navigation item and the descriptor field (input_descriptor) is visible without scrolling</action>
+        <action>Tap the descriptor field (input_descriptor)</action>
+        <action>Type "wpkh([73c5da0a/84h/1h/0h]tpubDC8msFGeGuwnKG9Upg7DM2b4DaRqg3CUZa5g8v2SRQ6K4NSkxUgd7HsL2XVWbVm39yBA4LgAFKvDsdsBPzMw3RGYbjeMs9dGcTLeUw6f7c/0/*)" into the descriptor field (input_descriptor)</action>
+        <action>Tap the Update descriptor button (button_update_descriptor)</action>
+        <action>Verify a "Descriptor loaded successfully" snackbar appears (target by text)</action>
+        <action>Tap the Node navigation item (nav_node)</action>
+        <action>Verify snackbar_add_descriptor is no longer present</action>
+        <action>Tap the Transactions navigation item (nav_transaction)</action>
+        <action>Verify button_add_descriptor is no longer present and the app has not crashed</action>
+    </actions>
+</journey>

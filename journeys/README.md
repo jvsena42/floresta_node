@@ -70,6 +70,10 @@ when adding or renaming a tag.
 | `nav_transaction` | Transactions nav item                    |
 | `nav_settings`    | Settings nav item                        |
 
+`nav_settings` carries a `BadgedBox` dot when **either** an app update is unseen **or** no wallet
+descriptor is loaded. The badge is decoration on the same node, so it does not change the
+resource-id — do not assert on it.
+
 ### Node screen (`node/ScreenNode.kt`)
 
 | resource-id              | element                         |
@@ -80,6 +84,17 @@ when adding or renaming a tag.
 | `node_difficulty`       | difficulty value                |
 | `node_disconnect_peer`  | per-peer disconnect button      |
 | `node_peer_flag`        | per-peer country flag (see below) |
+| `snackbar_add_descriptor` | message text of the "Add a wallet descriptor…" snackbar (see below) |
+
+`snackbar_add_descriptor` is **conditional**: it appears only once the daemon's RPC server has
+answered `listdescriptors` twice with an empty wallet, so expect it to be **absent for the first
+few seconds after the splash**, and absent entirely once any descriptor is loaded. It sits above
+the bottom navigation bar and persists until acted on or dismissed — it has no timeout. Its "Add
+descriptor" action switches to the Settings tab with the Descriptors section already expanded and
+scrolled into view, so `input_descriptor` is on screen without any further scrolling; its ✕
+dismisses it for the rest of the process (it returns on the next launch while no descriptor is
+loaded). Target the action and the ✕ by their "Add descriptor" text and "Dismiss"
+content-description.
 
 `node_peer_flag` repeats once per peer, but **only for peers whose IP resolves to a country** —
 it is absent for private/LAN, onion and unknown peers, and absent for *every* peer until the
@@ -132,6 +147,12 @@ action) on open. The snackbar is part of the Scaffold subtree, so its text and a
 | `input_rawtx`            | raw-tx broadcast field        |
 | `button_broadcast`       | "Broadcast"                   |
 | `button_scan_broadcast`  | "Scan to broadcast"           |
+| `button_add_descriptor`  | "Add descriptor" in the no-wallet empty state (see below) |
+
+`button_add_descriptor` follows the same conditionality as `banner_add_descriptor`: it replaces
+the grey "Only transactions from your loaded wallet descriptors can be found" hint at the bottom
+of the lookup card while no descriptor is loaded, and reverts to that hint once one is. It
+navigates to Settings exactly like the Node banner.
 
 ### Settings screen (`settings/ScreenSettings.kt`)
 

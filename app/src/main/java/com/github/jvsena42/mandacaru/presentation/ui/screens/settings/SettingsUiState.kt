@@ -29,6 +29,7 @@ data class SettingsUiState(
     val selectedNetwork: String = "",
     val isLoading: Boolean = false,
     val descriptors: List<String> = emptyList(),
+    val needsDescriptor: Boolean = false,
     val network: List<Network> = Network.entries,
     val isDescriptorsExpanded: Boolean = false,
     val isNetworkExpanded: Boolean = false,

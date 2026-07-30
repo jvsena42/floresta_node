@@ -31,8 +31,16 @@ open class FakeFlorestaRpc : FlorestaRpc {
     var sendRawTransactionResult: Result<SendRawTransactionResponse> =
         Result.success(SendRawTransactionResponse(id = 1, jsonrpc = "2.0", result = "txid"))
 
+    /** Consumed one per call; the last entry repeats once the list runs out. */
+    var listDescriptorsResults: List<Result<ListDescriptorsResponse>> = emptyList()
+    var loadDescriptorResult: Result<JSONObject>? = null
+
     val getTransactionCalls = mutableListOf<String>()
     val sentRawTransactions = mutableListOf<String>()
+    val loadedDescriptors = mutableListOf<String>()
+
+    var listDescriptorsCallCount = 0
+        private set
 
     override fun getBlockchainInfo(): Flow<Result<GetBlockchainInfoResponse>> =
         blockchainInfoResults.asFlow()
@@ -48,10 +56,21 @@ open class FakeFlorestaRpc : FlorestaRpc {
     }
 
     override fun rescan(): Flow<Result<JSONObject>> = emptyFlow()
-    override fun loadDescriptor(descriptor: String): Flow<Result<JSONObject>> = emptyFlow()
+
+    override fun loadDescriptor(descriptor: String): Flow<Result<JSONObject>> = flow {
+        loadedDescriptors.add(descriptor)
+        loadDescriptorResult?.let { emit(it) }
+    }
+
     override fun stop(): Flow<Result<JSONObject>> = emptyFlow()
     override fun getPeerInfo(): Flow<Result<GetPeerInfoResponse>> = emptyFlow()
-    override fun listDescriptors(): Flow<Result<ListDescriptorsResponse>> = emptyFlow()
+
+    override fun listDescriptors(): Flow<Result<ListDescriptorsResponse>> = flow {
+        val index = listDescriptorsCallCount++
+        val result = listDescriptorsResults.getOrNull(index)
+            ?: listDescriptorsResults.lastOrNull()
+        result?.let { emit(it) }
+    }
     override fun addNode(node: String, command: AddNodeCommand): Flow<Result<AddNodeResponse>> =
         emptyFlow()
 
