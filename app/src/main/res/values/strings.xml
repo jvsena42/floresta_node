@@ -50,6 +50,10 @@
     <string name="add_descriptor">Add descriptor</string>
     <string name="no_descriptor_snackbar_message">Add a wallet descriptor so the node can watch your addresses</string>
     <string name="dismiss">Dismiss</string>
+    <string name="notification_permission_message">Enable notifications to see when the node is running</string>
+    <string name="notification_permission_denied_warning">Notifications are disabled, wallets can\'t access your Electrum server</string>
+    <string name="notification_permission_enable">Enable</string>
+    <string name="notification_permission_settings">Open settings</string>
     <string name="no_descriptor_transactions_title">No wallet loaded</string>
     <string name="no_descriptor_transactions_body">Load your wallet descriptor so the node can watch your addresses. Until then, none of your transactions will be found.</string>
     <string name="share_descriptor">Share</string>

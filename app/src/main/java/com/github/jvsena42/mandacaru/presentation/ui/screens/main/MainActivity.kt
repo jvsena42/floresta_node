@@ -9,15 +9,18 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -26,9 +29,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -37,10 +43,12 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,7 +56,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -56,6 +64,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +74,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
+import com.github.jvsena42.mandacaru.R
 import com.github.jvsena42.mandacaru.presentation.service.FlorestaService
 import com.github.jvsena42.mandacaru.presentation.ui.screens.blockchain.ScreenBlockchain
 import com.github.jvsena42.mandacaru.presentation.ui.screens.logs.ScreenDeveloperLogs
@@ -73,8 +83,8 @@ import com.github.jvsena42.mandacaru.presentation.ui.screens.settings.ScreenSett
 import com.github.jvsena42.mandacaru.presentation.ui.screens.splash.SplashScreen
 import com.github.jvsena42.mandacaru.presentation.ui.screens.transaction.ScreenTransaction
 import com.github.jvsena42.mandacaru.presentation.ui.theme.MandacaruTheme
-import com.github.jvsena42.mandacaru.presentation.utils.NotificationPermissionHelper
 import com.github.jvsena42.mandacaru.presentation.utils.rememberAdaptiveLayout
+import com.github.jvsena42.mandacaru.presentation.utils.rememberNotificationPermissionState
 import com.github.jvsena42.mandacaru.presentation.utils.restartApplication
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
@@ -83,7 +93,6 @@ import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
 
-    private var notificationPermissionLauncher: ActivityResultLauncher<String>? = null
     private var serviceStartRequested = false
 
     private val exitReceiver = object : BroadcastReceiver() {
@@ -108,29 +117,11 @@ class MainActivity : ComponentActivity() {
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
-        // Register permission launcher before setContent
-        notificationPermissionLauncher = NotificationPermissionHelper.registerPermissionLauncher(
-            activity = this,
-            onPermissionResult = { isGranted ->
-                Log.d(TAG, "Notification permission result: $isGranted")
-                if (isGranted) {
-                    // Permission granted, start service if not already started
-                    startServiceIfNeeded()
-                }
-            }
-        )
-
-        // Request permission immediately if not granted
-        if (!NotificationPermissionHelper.hasNotificationPermission(this)) {
-            Log.d(TAG, "Requesting notification permission")
-            NotificationPermissionHelper.requestNotificationPermission(
-                notificationPermissionLauncher
-            )
-        } else {
-            // Permission already granted, start service immediately
-            Log.d(TAG, "Permission already granted, starting service")
-            startServiceIfNeeded()
-        }
+        // Deliberately not gated on POST_NOTIFICATIONS: the service is what syncs the
+        // chain, and a dataSync foreground service starts fine without it — only its
+        // notification is withheld. Gating here left the node dead for the whole session
+        // whenever the user declined.
+        startServiceIfNeeded()
 
         val isColdStart = savedInstanceState == null
         enableEdgeToEdge()
@@ -140,13 +131,6 @@ class MainActivity : ComponentActivity() {
                     MandacaruRoot(
                         showSplashOnStart = isColdStart,
                         restartApplication = { restartApplication() },
-                        requestNotificationPermission = {
-                            NotificationPermissionHelper.requestNotificationPermission(
-                                notificationPermissionLauncher
-                            )
-                        },
-                        hasNotificationPermission = NotificationPermissionHelper
-                            .hasNotificationPermission(this@MainActivity),
                     )
                 }
             }
@@ -184,8 +168,6 @@ class MainActivity : ComponentActivity() {
 private fun MandacaruRoot(
     showSplashOnStart: Boolean,
     restartApplication: () -> Unit,
-    requestNotificationPermission: () -> Unit,
-    hasNotificationPermission: Boolean,
     mainViewModel: MainViewModel = koinViewModel(),
 ) {
     var showSplash by remember { mutableStateOf(showSplashOnStart) }
@@ -213,8 +195,6 @@ private fun MandacaruRoot(
                                 .fillMaxSize()
                                 .background(MaterialTheme.colorScheme.background),
                             restartApplication = restartApplication,
-                            requestNotificationPermission = requestNotificationPermission,
-                            hasNotificationPermission = hasNotificationPermission,
                             isSettingsBadgeVisible = isSettingsBadgeVisible,
                             needsDescriptor = needsDescriptor,
                             onOpenLogs = { mainViewModel.navigateTo(AppRoute.DeveloperLogs) },
@@ -246,11 +226,56 @@ private const val SPLASH_DURATION_MS = 4000L
 private const val SPLASH_FADE_OUT_MS = 350
 
 @Composable
+private fun EnableNotificationsSnackbar(
+    needsSettings: Boolean,
+    wasDenied: Boolean,
+    onEnable: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Snackbar(
+        modifier = Modifier.padding(horizontal = 12.dp),
+        action = {
+            TextButton(onClick = onEnable) {
+                Text(
+                    text = stringResource(
+                        if (needsSettings) {
+                            R.string.notification_permission_settings
+                        } else {
+                            R.string.notification_permission_enable
+                        }
+                    ),
+                    color = MaterialTheme.colorScheme.inversePrimary,
+                )
+            }
+        },
+        dismissAction = {
+            IconButton(onClick = onDismiss) {
+                Icon(
+                    imageVector = Icons.Outlined.Close,
+                    contentDescription = stringResource(R.string.dismiss),
+                )
+            }
+        },
+    ) {
+        // The tag rides the message rather than the Snackbar root: the root emits no
+        // semantics of its own, so a tag there never surfaces in `android layout`.
+        Text(
+            text = stringResource(
+                if (wasDenied) {
+                    R.string.notification_permission_denied_warning
+                } else {
+                    R.string.notification_permission_message
+                }
+            ),
+            modifier = Modifier.testTag("snackbar_enable_notifications"),
+        )
+    }
+}
+
+@Composable
 private fun MainScreen(
     restartApplication: () -> Unit,
     modifier: Modifier = Modifier,
-    requestNotificationPermission: () -> Unit = {},
-    hasNotificationPermission: Boolean = true,
     isSettingsBadgeVisible: Boolean = false,
     needsDescriptor: Boolean = false,
     onOpenLogs: () -> Unit = {},
@@ -262,25 +287,13 @@ private fun MainScreen(
     )
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    var showPermissionSnackbar by remember { mutableStateOf(!hasNotificationPermission) }
-    val currentRequestNotificationPermission by rememberUpdatedState(requestNotificationPermission)
 
-    // Show snackbar if permission was denied
-    LaunchedEffect(hasNotificationPermission) {
-        if (!hasNotificationPermission && showPermissionSnackbar) {
-            launch {
-                val result = snackbarHostState.showSnackbar(
-                    message = "Enable notifications to see when the node is running",
-                    actionLabel = "Enable",
-                    withDismissAction = true
-                )
-                if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
-                    currentRequestNotificationPermission()
-                }
-                showPermissionSnackbar = false
-            }
-        }
-    }
+    // Rendered as plain state rather than through showSnackbar: the host's suspending call
+    // can only be retracted by cancelling its coroutine, so a permission granted while it
+    // was displayed left the prompt stranded on screen.
+    val notificationPermission = rememberNotificationPermissionState()
+    var notificationPromptDismissed by rememberSaveable { mutableStateOf(false) }
+    val showNotificationPrompt = !notificationPermission.isGranted && !notificationPromptDismissed
 
     val useRail = rememberAdaptiveLayout().useRail
     val onSelectDestination: (Int) -> Unit = { index ->
@@ -300,7 +313,23 @@ private fun MainScreen(
 
     Scaffold(
         modifier = modifier,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        snackbarHost = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                AnimatedVisibility(
+                    visible = showNotificationPrompt,
+                    enter = fadeIn(),
+                    exit = fadeOut() + shrinkVertically(),
+                ) {
+                    EnableNotificationsSnackbar(
+                        needsSettings = notificationPermission.needsSettings,
+                        wasDenied = notificationPermission.wasDenied,
+                        onEnable = { notificationPermission.request() },
+                        onDismiss = { notificationPromptDismissed = true },
+                    )
+                }
+                SnackbarHost(hostState = snackbarHostState)
+            }
+        },
         bottomBar = {
             if (!useRail) {
                 AppNavigationBar(
@@ -331,10 +360,12 @@ private fun MainScreen(
                 beyondViewportPageCount = 1
             ) { page ->
                 when (pages[page]) {
+                    // Both prompts anchor to the bottom of their own Scaffold, so they
+                    // would sit on top of each other; the descriptor one waits its turn.
                     Destinations.NODE -> ScreenNode(
                         restartApplication = restartApplication,
                         bottomContentPadding = bottomBarPadding,
-                        needsDescriptor = needsDescriptor,
+                        needsDescriptor = needsDescriptor && !showNotificationPrompt,
                         onAddDescriptor = onAddDescriptor,
                     )
                     Destinations.BLOCKCHAIN -> ScreenBlockchain(
