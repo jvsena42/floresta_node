@@ -29,6 +29,8 @@ internal fun TransactionTabletDashboard(
     onAction: (TransactionAction) -> Unit,
     focusManager: FocusManager,
     modifier: Modifier = Modifier,
+    needsDescriptor: Boolean = false,
+    onAddDescriptor: () -> Unit = {},
 ) {
     Column(
         modifier = modifier,
@@ -63,6 +65,8 @@ internal fun TransactionTabletDashboard(
                     uiState = uiState,
                     onAction = onAction,
                     focusManager = focusManager,
+                    needsDescriptor = needsDescriptor,
+                    onAddDescriptor = onAddDescriptor,
                 )
                 AnimatedContent(
                     targetState = uiState.searchResult?.result,

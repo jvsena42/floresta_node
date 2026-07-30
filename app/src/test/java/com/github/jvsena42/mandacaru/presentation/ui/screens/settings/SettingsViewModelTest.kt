@@ -1,19 +1,22 @@
 package com.github.jvsena42.mandacaru.presentation.ui.screens.settings
 
 import android.content.Context
-import com.github.jvsena42.mandacaru.data.AppUpdateRepository
 import com.github.jvsena42.mandacaru.data.PreferenceKeys
-import com.github.jvsena42.mandacaru.data.GeoIpDatabaseRepository
 import com.github.jvsena42.mandacaru.data.PreferencesDataSource
-import com.github.jvsena42.mandacaru.domain.model.UpdateStatus
+import com.github.jvsena42.mandacaru.domain.model.WalletDescriptorStatus
 import com.github.jvsena42.mandacaru.domain.scan.DescriptorQrScanner
 import com.github.jvsena42.mandacaru.domain.scan.DescriptorScanState
+import com.github.jvsena42.mandacaru.fakes.FakeAppUpdateRepository
 import com.github.jvsena42.mandacaru.fakes.FakeFlorestaRpc
+import com.github.jvsena42.mandacaru.fakes.FakeGeoIpDatabaseRepository
+import com.github.jvsena42.mandacaru.fakes.FakeWalletDescriptorRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.withTimeout
+import org.json.JSONObject
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -36,6 +39,7 @@ class SettingsViewModelTest {
     private lateinit var preferences: FakePreferences
     private lateinit var appUpdateRepository: FakeAppUpdateRepository
     private lateinit var descriptorScanner: FakeDescriptorQrScanner
+    private lateinit var walletDescriptorRepository: FakeWalletDescriptorRepository
 
     @Before
     fun setUp() {
@@ -44,6 +48,7 @@ class SettingsViewModelTest {
         preferences = FakePreferences()
         appUpdateRepository = FakeAppUpdateRepository()
         descriptorScanner = FakeDescriptorQrScanner()
+        walletDescriptorRepository = FakeWalletDescriptorRepository()
     }
 
     @After
@@ -58,6 +63,7 @@ class SettingsViewModelTest {
             appUpdateRepository = appUpdateRepository,
             geoIpDatabaseRepository = FakeGeoIpDatabaseRepository(),
             descriptorScanner = descriptorScanner,
+            walletDescriptorRepository = walletDescriptorRepository,
             context = mock(Context::class.java),
         )
         // runCurrent (not advanceUntilIdle): observeRescanState is an infinite delay loop
@@ -94,6 +100,46 @@ class SettingsViewModelTest {
         assertEquals("", vm.uiState.value.snackBarMessage)
     }
 
+    @Test
+    fun `descriptors come from the repository`() {
+        val vm = buildViewModel()
+
+        walletDescriptorRepository.status.value =
+            WalletDescriptorStatus(descriptors = listOf(DESCRIPTOR), isKnown = true)
+        dispatcher.scheduler.runCurrent()
+
+        assertEquals(listOf(DESCRIPTOR), vm.uiState.value.descriptors)
+    }
+
+    @Test
+    fun `loading a descriptor refreshes the repository so the prompts clear immediately`() =
+        runBlocking {
+            rpc.loadDescriptorResult = Result.success(JSONObject())
+            val vm = buildViewModel()
+
+            vm.onAction(SettingsAction.OnDescriptorChanged(DESCRIPTOR))
+            vm.onAction(SettingsAction.OnClickUpdateDescriptor)
+
+            // loadDescriptorString runs on the real Dispatchers.IO, which the test scheduler
+            // does not drive, so wait for the effect instead of advancing virtual time.
+            withTimeout(REFRESH_TIMEOUT_MS) {
+                while (walletDescriptorRepository.refreshCount == 0) delay(POLL_MS)
+            }
+
+            assertEquals(1, walletDescriptorRepository.refreshCount)
+        }
+
+    @Test
+    fun `expanding descriptors is idempotent unlike toggling`() {
+        val vm = buildViewModel()
+
+        vm.onAction(SettingsAction.ExpandDescriptors)
+        vm.onAction(SettingsAction.ExpandDescriptors)
+        dispatcher.scheduler.runCurrent()
+
+        assertTrue(vm.uiState.value.isDescriptorsExpanded)
+    }
+
     private class FakePreferences : PreferencesDataSource {
         private val strings = mutableMapOf<PreferenceKeys, String>()
         private val booleans = mutableMapOf<PreferenceKeys, Boolean>()
@@ -105,24 +151,16 @@ class SettingsViewModelTest {
             booleans[key] ?: defaultValue
     }
 
-    private class FakeAppUpdateRepository : AppUpdateRepository {
-        override val updateStatus: StateFlow<UpdateStatus> = MutableStateFlow(UpdateStatus())
-        override suspend fun refresh(force: Boolean) = Unit
-        override suspend fun markUpdateSeen() = Unit
-    }
-
     private class FakeDescriptorQrScanner : DescriptorQrScanner {
         override fun ingest(raw: String): DescriptorScanState = DescriptorScanState.Idle
         override fun reset() = Unit
     }
 
     private companion object {
+        const val REFRESH_TIMEOUT_MS = 5_000L
+        const val POLL_MS = 10L
         const val DESCRIPTOR =
             "wpkh([73c5da0a/84h/1h/0h]tpubDC8msFGeGuwnKG9Upg7DM2b4DaRqg3CUZa5g8v2SRQ6K4NSkxUgd7HsL2XVWbVm39yBA4LgAFKvDsdsBPzMw3RGYbjeMs9dGcTLeUw6f7c/0/*)"
     }
 
-    private class FakeGeoIpDatabaseRepository : GeoIpDatabaseRepository {
-        override suspend fun refresh(force: Boolean) = Unit
-        override suspend fun deleteDatabase() = Unit
-    }
 }

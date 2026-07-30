@@ -33,6 +33,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Send
+import androidx.compose.material.icons.outlined.Wallet
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -90,6 +91,8 @@ import java.util.Locale
 @Composable
 fun ScreenTransaction(
     bottomContentPadding: Dp = 0.dp,
+    needsDescriptor: Boolean = false,
+    onAddDescriptor: () -> Unit = {},
     viewModel: TransactionViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -97,6 +100,8 @@ fun ScreenTransaction(
         uiState = uiState,
         onAction = viewModel::onAction,
         bottomContentPadding = bottomContentPadding,
+        needsDescriptor = needsDescriptor,
+        onAddDescriptor = onAddDescriptor,
     )
 }
 
@@ -107,6 +112,8 @@ fun ScreenTransactionContent(
     onAction: (TransactionAction) -> Unit,
     modifier: Modifier = Modifier,
     bottomContentPadding: Dp = 0.dp,
+    needsDescriptor: Boolean = false,
+    onAddDescriptor: () -> Unit = {},
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -175,6 +182,8 @@ fun ScreenTransactionContent(
                     uiState = uiState,
                     onAction = onAction,
                     focusManager = focusManager,
+                    needsDescriptor = needsDescriptor,
+                    onAddDescriptor = onAddDescriptor,
                     modifier = Modifier
                         .fillMaxSize()
                         .widthIn(max = 1600.dp)
@@ -219,6 +228,8 @@ fun ScreenTransactionContent(
                         uiState = uiState,
                         onAction = onAction,
                         focusManager = focusManager,
+                        needsDescriptor = needsDescriptor,
+                        onAddDescriptor = onAddDescriptor,
                     )
 
                     AnimatedVisibility(
@@ -266,6 +277,8 @@ internal fun TransactionLookupCard(
     uiState: TransactionUiState,
     onAction: (TransactionAction) -> Unit,
     focusManager: FocusManager,
+    needsDescriptor: Boolean = false,
+    onAddDescriptor: () -> Unit = {},
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -322,21 +335,73 @@ internal fun TransactionLookupCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
+            if (needsDescriptor) {
+                NoDescriptorEmptyState(onAddDescriptor = onAddDescriptor)
+            } else {
+                TransactionLookupHint()
+            }
+        }
+    }
+}
+
+@Composable
+private fun TransactionLookupHint() {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            Icons.Outlined.Info,
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+        )
+        Text(
+            stringResource(R.string.transaction_lookup_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+        )
+    }
+}
+
+@Composable
+private fun NoDescriptorEmptyState(onAddDescriptor: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                Icons.Outlined.Wallet,
+                contentDescription = null,
+                modifier = Modifier.size(32.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                stringResource(R.string.no_descriptor_transactions_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                stringResource(R.string.no_descriptor_transactions_body),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Button(
+                onClick = onAddDescriptor,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.testTag("button_add_descriptor"),
             ) {
-                Icon(
-                    Icons.Outlined.Info,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                )
-                Text(
-                    stringResource(R.string.transaction_lookup_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                )
+                Text(stringResource(R.string.add_descriptor))
             }
         }
     }

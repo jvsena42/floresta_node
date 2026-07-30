@@ -11,6 +11,7 @@ import com.github.jvsena42.mandacaru.data.GeoIpDatabaseRepository
 import com.github.jvsena42.mandacaru.data.FlorestaRpc
 import com.github.jvsena42.mandacaru.data.PreferenceKeys
 import com.github.jvsena42.mandacaru.data.PreferencesDataSource
+import com.github.jvsena42.mandacaru.data.WalletDescriptorRepository
 import com.github.jvsena42.mandacaru.R
 import com.github.jvsena42.mandacaru.domain.geoip.isPeerFlagsEnabled
 import com.github.jvsena42.mandacaru.domain.model.florestaRPC.AddNodeCommand
@@ -46,6 +47,7 @@ class SettingsViewModel(
     private val appUpdateRepository: AppUpdateRepository,
     private val geoIpDatabaseRepository: GeoIpDatabaseRepository,
     private val descriptorScanner: DescriptorQrScanner,
+    private val walletDescriptorRepository: WalletDescriptorRepository,
     @field:SuppressLint("StaticFieldLeak") private val context: Context,
 ) : ViewModel(), EventFlow<SettingsEvents> by EventFlowImpl() {
 
@@ -81,7 +83,7 @@ class SettingsViewModel(
             }
             updateElectrumAddress()
         }
-        getDescriptors()
+        observeDescriptors()
         observeUpdateStatus()
         observeRescanState()
     }
@@ -171,6 +173,10 @@ class SettingsViewModel(
                 it.copy(
                     isDescriptorsExpanded = !it.isDescriptorsExpanded
                 )
+            }
+
+            SettingsAction.ExpandDescriptors -> _uiState.update {
+                it.copy(isDescriptorsExpanded = true)
             }
 
             SettingsAction.ToggleNetworkExpanded -> _uiState.update {
@@ -347,12 +353,14 @@ class SettingsViewModel(
         _uiState.update { it.copy(electrumAddress = "127.0.0.1:$port") }
     }
 
-    private fun getDescriptors() {
-        viewModelScope.launch(Dispatchers.IO) {
-            florestaRpc.listDescriptors().collect { result ->
-                result.onSuccess { data ->
-                    Log.d(TAG, "getDescriptors: $data")
-                    _uiState.update { it.copy(descriptors = data.result) }
+    private fun observeDescriptors() {
+        viewModelScope.launch {
+            walletDescriptorRepository.status.collect { status ->
+                _uiState.update {
+                    it.copy(
+                        descriptors = status.descriptors,
+                        needsDescriptor = status.needsDescriptor,
+                    )
                 }
             }
         }
@@ -451,7 +459,7 @@ class SettingsViewModel(
                         preferencesDataSource.setBoolean(PreferenceKeys.WALLET_NEEDS_RESCAN, true)
                         onSuccess()
                         _uiState.update { it.copy(snackBarMessage = "Descriptor loaded successfully") }
-                        getDescriptors()
+                        walletDescriptorRepository.refresh()
                         Log.d(TAG, "loadDescriptorString: Success: $data")
                     }.onFailure { error ->
                         Log.d(TAG, "loadDescriptorString: Fail: ${error.message}")

@@ -18,6 +18,7 @@ sealed interface SettingsAction {
     object OnClickRescan: SettingsAction
     object ClearSnackBarMessage: SettingsAction
     object ToggleDescriptorsExpanded: SettingsAction
+    object ExpandDescriptors: SettingsAction
     object ToggleNetworkExpanded: SettingsAction
     object ToggleNodeExpanded: SettingsAction
     object ToggleAboutExpanded: SettingsAction

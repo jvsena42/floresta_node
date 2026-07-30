@@ -189,7 +189,8 @@ private fun MandacaruRoot(
     mainViewModel: MainViewModel = koinViewModel(),
 ) {
     var showSplash by remember { mutableStateOf(showSplashOnStart) }
-    val isUpdateBadgeVisible by mainViewModel.isUpdateBadgeVisible.collectAsState()
+    val isSettingsBadgeVisible by mainViewModel.isSettingsBadgeVisible.collectAsState()
+    val needsDescriptor by mainViewModel.needsDescriptor.collectAsState()
     LaunchedEffect(Unit) {
         if (showSplash) {
             delay(SPLASH_DURATION_MS)
@@ -214,7 +215,8 @@ private fun MandacaruRoot(
                             restartApplication = restartApplication,
                             requestNotificationPermission = requestNotificationPermission,
                             hasNotificationPermission = hasNotificationPermission,
-                            isSettingsBadgeVisible = isUpdateBadgeVisible,
+                            isSettingsBadgeVisible = isSettingsBadgeVisible,
+                            needsDescriptor = needsDescriptor,
                             onOpenLogs = { mainViewModel.navigateTo(AppRoute.DeveloperLogs) },
                         )
                     }
@@ -250,6 +252,7 @@ private fun MainScreen(
     requestNotificationPermission: () -> Unit = {},
     hasNotificationPermission: Boolean = true,
     isSettingsBadgeVisible: Boolean = false,
+    needsDescriptor: Boolean = false,
     onOpenLogs: () -> Unit = {},
 ) {
     val pages = Destinations.entries
@@ -283,6 +286,15 @@ private fun MainScreen(
     val onSelectDestination: (Int) -> Unit = { index ->
         coroutineScope.launch {
             pagerState.animateScrollToPage(index)
+        }
+    }
+
+    var focusDescriptors by remember { mutableStateOf(false) }
+    val settingsIndex = pages.indexOf(Destinations.SETTINGS)
+    val onAddDescriptor: () -> Unit = remember(settingsIndex) {
+        {
+            focusDescriptors = true
+            onSelectDestination(settingsIndex)
         }
     }
 
@@ -322,17 +334,23 @@ private fun MainScreen(
                     Destinations.NODE -> ScreenNode(
                         restartApplication = restartApplication,
                         bottomContentPadding = bottomBarPadding,
+                        needsDescriptor = needsDescriptor,
+                        onAddDescriptor = onAddDescriptor,
                     )
                     Destinations.BLOCKCHAIN -> ScreenBlockchain(
                         bottomContentPadding = bottomBarPadding,
                     )
                     Destinations.TRANSACTION -> ScreenTransaction(
                         bottomContentPadding = bottomBarPadding,
+                        needsDescriptor = needsDescriptor,
+                        onAddDescriptor = onAddDescriptor,
                     )
                     Destinations.SETTINGS -> ScreenSettings(
                         restartApplication = restartApplication,
                         bottomContentPadding = bottomBarPadding,
                         onOpenLogs = onOpenLogs,
+                        focusDescriptors = focusDescriptors,
+                        onFocusHandled = { focusDescriptors = false },
                     )
                 }
             }

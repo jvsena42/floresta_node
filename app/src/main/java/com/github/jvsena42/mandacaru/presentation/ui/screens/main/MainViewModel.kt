@@ -6,7 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.jvsena42.mandacaru.data.AppUpdateRepository
 import com.github.jvsena42.mandacaru.data.GeoIpDatabaseRepository
+import com.github.jvsena42.mandacaru.data.WalletDescriptorRepository
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -14,10 +17,17 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     private val appUpdateRepository: AppUpdateRepository,
     private val geoIpDatabaseRepository: GeoIpDatabaseRepository,
+    walletDescriptorRepository: WalletDescriptorRepository,
 ) : ViewModel() {
 
-    val isUpdateBadgeVisible = appUpdateRepository.updateStatus
-        .map { it.isBadgeVisible }
+    val needsDescriptor: StateFlow<Boolean> = walletDescriptorRepository.status
+        .map { it.needsDescriptor }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val isSettingsBadgeVisible: StateFlow<Boolean> = combine(
+        appUpdateRepository.updateStatus.map { it.isBadgeVisible },
+        needsDescriptor,
+    ) { hasUnseenUpdate, needsDescriptor -> hasUnseenUpdate || needsDescriptor }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     val backStack: SnapshotStateList<AppRoute> = mutableStateListOf(AppRoute.Home)
