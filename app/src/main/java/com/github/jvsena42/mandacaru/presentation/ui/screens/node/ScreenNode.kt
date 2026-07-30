@@ -104,7 +104,6 @@ import com.github.jvsena42.mandacaru.domain.floresta.phase
 import com.github.jvsena42.mandacaru.domain.model.florestaRPC.response.PeerInfoResult
 import com.github.jvsena42.mandacaru.presentation.ui.components.ExpandableHeader
 import com.github.jvsena42.mandacaru.presentation.ui.theme.MandacaruTheme
-import com.github.jvsena42.mandacaru.presentation.utils.RequestNotificationPermissions
 import com.github.jvsena42.mandacaru.presentation.utils.rememberAdaptiveLayout
 import org.koin.androidx.compose.koinViewModel
 
@@ -117,8 +116,6 @@ fun ScreenNode(
     onAddDescriptor: () -> Unit = {},
     viewModel: NodeViewModel = koinViewModel()
 ) {
-    RequestNotificationPermissions(onPermissionChange = {})
-
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val clipboard = LocalClipboardManager.current
